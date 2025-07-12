@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  currentMode: "",
   baseKeys: [],
   selectedBaseKey: "",
   entryKeys: [],
@@ -14,6 +15,9 @@ const mediaEditorSlice = createSlice({
   name: "mediaEditor",
   initialState,
   reducers: {
+    setCurrentMode: (state, action) => {
+      state.currentMode = action.payload;
+    },
     setBaseKeys: (state, action) => {
       state.baseKeys = action.payload;
     },
@@ -39,6 +43,7 @@ const mediaEditorSlice = createSlice({
 });
 
 export const {
+  setCurrentMode,
   setBaseKeys,
   setSelectedBaseKey,
   setEntryKeys,
