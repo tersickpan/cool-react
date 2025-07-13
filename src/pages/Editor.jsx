@@ -4,6 +4,7 @@ import EmojiSpinner from "../components/base/EmojiSpinner";
 import NavBar from "../components/NavBar";
 import AddNew from "../components/AddNew";
 import EditExist from "../components/EditExist";
+import LastUpdated from "../components/LastUpdated";
 
 function Editor() {
   const loading = useSelector((state) => state.generalState.loading);
@@ -18,6 +19,7 @@ function Editor() {
       <NavBar />
       {currentMode === "add" && <AddNew />}
       {currentMode === "edit" && <EditExist />}
+      {currentMode === "last" && <LastUpdated />}
     </div>
   );
 }
