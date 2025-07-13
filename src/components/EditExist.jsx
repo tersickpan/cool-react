@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
@@ -13,6 +13,7 @@ import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 
 export default function EditExist() {
+  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
   const selectedBaseKey = useSelector(
     (state) => state.mediaEditor.selectedBaseKey
@@ -23,6 +24,15 @@ export default function EditExist() {
 
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
+
+  useEffect(() => {
+    if (!selectedEntryKey) return;
+
+    const baddie = mediaJson[mediaType][selectedEntryKey];
+
+    setCurrentUrl(baddie.url);
+    if (baddie.volume) setCurrentVolume(baddie.volume);
+  }, [selectedEntryKey]);
 
   const handleEdit = () => {
     if (!selectedBaseKey || !selectedEntryKey || !currentUrl) {
@@ -74,15 +84,11 @@ export default function EditExist() {
             <SectionCard className="col-span-2">
               <div className="grid md:grid-cols-2 gap-6">
                 {mediaType === "pictures" && (
-                  <BaseImagePreview
-                    src={
-                      "https://res.cloudinary.com/dt4e5hwvo/image/upload/cld-sample-5.jpg"
-                    }
-                  />
+                  <BaseImagePreview src={currentUrl} />
                 )}
                 {mediaType === "videos" && (
                   <BaseVideoPreview
-                    src={""}
+                    src={currentUrl}
                     volume={currentVolume}
                   />
                 )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedBaseKey } from "../store/mediaEditorSlice";
 
@@ -11,17 +11,26 @@ import BaseButton from "./base/BaseButton";
 import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
+import getRandomEntry from "../utils/getRandomEntry";
 
 export default function AddNew() {
   const dispatch = useDispatch();
+  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
   const selectedBaseKey = useSelector(
     (state) => state.mediaEditor.selectedBaseKey
   );
 
+  const [currentBaddie, setCurrentBaddie] = useState({});
   const [newBaddie, setNewBaddie] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newVolume, setNewVolume] = useState(0.07);
+
+  useEffect(() => {
+    if (!selectedBaseKey) return;
+
+    setCurrentBaddie(getRandomEntry(mediaJson[mediaType], selectedBaseKey));
+  }, [selectedBaseKey]);
 
   const handleNewBaddie = (value) => {
     setNewBaddie(value);
@@ -86,29 +95,23 @@ export default function AddNew() {
               <div className="grid md:grid-cols-2 gap-6">
                 {mediaType === "pictures" && (
                   <>
-                    <BaseImagePreview
-                      src={
-                        "https://res.cloudinary.com/dt4e5hwvo/image/upload/cld-sample-5.jpg"
-                      }
-                    />
-                    {newBaddie && (
-                      <BaseImagePreview
-                        src={
-                          "https://res.cloudinary.com/dt4e5hwvo/image/upload/cld-sample-2.jpg"
-                        }
-                      />
-                    )}
+                    <BaseImagePreview src={currentBaddie.url} />
+                    {newBaddie && <BaseImagePreview src={newUrl} />}
                   </>
                 )}
                 {mediaType === "videos" && (
                   <>
                     <BaseVideoPreview
-                      src={""}
-                      volume={newVolume}
+                      src={currentBaddie.url}
+                      volume={
+                        currentBaddie.volume
+                          ? parseFloat(currentBaddie.volume)
+                          : 0.07
+                      }
                     />
                     {newBaddie && (
                       <BaseVideoPreview
-                        src={""}
+                        src={newUrl}
                         volume={newVolume}
                       />
                     )}
