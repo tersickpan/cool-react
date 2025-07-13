@@ -1,4 +1,4 @@
-export default function BaseVideoPreview({ src, volume = 1.0, muted = false }) {
+export default function BaseVideoPreview({ src, volume = 1.0, muted = true }) {
   return (
     <div className="max-w-md mx-auto">
       <video
@@ -11,5 +11,5 @@ export default function BaseVideoPreview({ src, volume = 1.0, muted = false }) {
         className="rounded-2xl shadow-xl w-full"
       />
     </div>
-  )
+  );
 }

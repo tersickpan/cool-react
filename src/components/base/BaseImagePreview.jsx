@@ -4,8 +4,8 @@ export default function BaseImagePreview({ src, alt = "image preview" }) {
       <img
         src={src}
         alt={alt}
-        className="rounded-2xl shadow-xl w-full object-cover"
+        className="rounded-2xl shadow-xl w-full object-contain"
       />
     </div>
-  )
+  );
 }
