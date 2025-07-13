@@ -1,8 +1,13 @@
 import { useSelector, useDispatch } from "react-redux";
-import { setSelectedBaseKey } from "../store/mediaEditorSlice";
+import {
+  setBaseKeys,
+  setSelectedBaseKey,
+  setEntryKeys,
+} from "../store/mediaEditorSlice";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
+import { useEffect } from "react";
 
 export default function BaseKeyDropdown({ disabled }) {
   const dispatch = useDispatch();
@@ -10,6 +15,26 @@ export default function BaseKeyDropdown({ disabled }) {
     (state) => state.mediaEditor.selectedBaseKey
   );
   const baseKeys = useSelector((state) => state.mediaEditor.baseKeys);
+  const mediaType = useSelector((state) => state.mediaData.mediaType);
+  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
+
+  useEffect(() => {
+    if (!mediaType) return;
+
+    const keys = Object.keys(mediaJson[mediaType]);
+    const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
+
+    dispatch(setBaseKeys(allKeysByBase));
+  }, [mediaType]);
+
+  useEffect(() => {
+    if (!selectedBaseKey) return;
+
+    const keys = Object.keys(mediaJson[mediaType]);
+    const options = keys.filter((k) => k.startsWith(selectedBaseKey + "-"));
+
+    dispatch(setEntryKeys(options));
+  }, [selectedBaseKey]);
 
   return (
     <>

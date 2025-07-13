@@ -15,6 +15,9 @@ import BaseVideoPreview from "./base/BaseVideoPreview";
 export default function AddNew() {
   const dispatch = useDispatch();
   const mediaType = useSelector((state) => state.mediaData.mediaType);
+  const selectedBaseKey = useSelector(
+    (state) => state.mediaEditor.selectedBaseKey
+  );
 
   const [newBaddie, setNewBaddie] = useState("");
   const [newUrl, setNewUrl] = useState("");
@@ -29,7 +32,7 @@ export default function AddNew() {
   };
 
   const handleAdd = () => {
-    if (!newBaddie || !newUrl) {
+    if ((!newBaddie && !selectedBaseKey) || !newUrl) {
       alert("Missing fields bruh");
       return;
     }
@@ -40,7 +43,7 @@ export default function AddNew() {
     }
 
     console.log({
-      baseKey: newBaddie,
+      baseKey: newBaddie ? newBaddie : selectedBaseKey,
       url: newUrl,
       ...(mediaType === "videos" && { volume: parseFloat(newVolume) }),
       timestamp: new Date().toISOString(),
