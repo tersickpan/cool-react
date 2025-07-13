@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   currentMode: "",
-  baseKeys: ["", "ali", "kema", "puwat"],
+  baseKeys: [],
   selectedBaseKey: "",
-  entryKeys: ["ali-01", "ali-02", "ali-03", "kema-01", "kema-02", "puwat-01"],
+  entryKeys: [],
   selectedEntryKey: "",
   sortMode: "default", // "default" | "newest" | "oldest"
   loading: false,
