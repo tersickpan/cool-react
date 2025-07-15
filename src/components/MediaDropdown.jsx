@@ -10,7 +10,6 @@ export default function MediaDropdown() {
   const mediaType = useSelector((state) => state.mediaData.mediaType);
 
   const mediaOptions = [
-    { label: "Select a media", value: "" },
     { label: "📸 Pictures", value: "pictures" },
     { label: "🎥 Videos", value: "videos" },
   ];
@@ -22,6 +21,7 @@ export default function MediaDropdown() {
         value={mediaType}
         options={mediaOptions}
         onChange={(e) => dispatch(setMediaType(e.target.value))}
+        defaultOpt="Select a media"
       ></BaseDropdown>
     </SectionCard>
   );

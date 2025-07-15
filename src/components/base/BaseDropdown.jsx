@@ -4,6 +4,7 @@ export default function BaseDropdown({
   onChange,
   options = [],
   disabled = false,
+  defaultOpt = "",
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -14,9 +15,17 @@ export default function BaseDropdown({
         disabled={disabled}
         className="bg-zinc-800 border border-pink-400 rounded-xl px-3 py-2 text-white disabled:opacity-40"
       >
+        {defaultOpt && (
+          <option
+            key={0}
+            value={""}
+          >
+            {defaultOpt}
+          </option>
+        )}
         {options.map((opt, idx) => (
           <option
-            key={idx}
+            key={idx + 1}
             value={opt.value}
           >
             {opt.label || opt}
