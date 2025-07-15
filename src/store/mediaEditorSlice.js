@@ -17,6 +17,8 @@ const mediaEditorSlice = createSlice({
   reducers: {
     setCurrentMode: (state, action) => {
       state.currentMode = action.payload;
+      state.selectedBaseKey = "";
+      state.selectedEntryKey = "";
     },
     setBaseKeys: (state, action) => {
       state.baseKeys = action.payload;
