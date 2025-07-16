@@ -8,6 +8,7 @@ import App from "./App.jsx";
 import Editor from "./pages/Editor.jsx";
 import Viewer from "./pages/Viewer.jsx";
 import WallPicture from "./pages/WallPicture.jsx";
+import WallVideo from "./pages/WallVideo.jsx";
 import RequireJsonLoader from "./components/RequireJsonLoader.jsx";
 
 import "./index.css";
@@ -42,6 +43,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             element={
               <RequireJsonLoader>
                 <WallPicture />
+              </RequireJsonLoader>
+            }
+          />
+          <Route
+            path="/wallvid"
+            element={
+              <RequireJsonLoader>
+                <WallVideo />
               </RequireJsonLoader>
             }
           />

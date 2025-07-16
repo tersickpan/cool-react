@@ -9,46 +9,61 @@ function WallPicture() {
 
   const [picsArray, setPicsArray] = useState([]);
   const [picsIndex, setPicsIndex] = useState(0);
-  const picsIndexRef = useRef(picsIndex);
+  const intervalRef = useRef(null);
+
   const [leftImgUrl, setLeftImgUrl] = useState("");
   const [middleImgUrl, setMiddleImgUrl] = useState("");
   const [rightImgUrl, setRightImgUrl] = useState("");
 
-  function setMediaSource() {
-    setLeftImgUrl(picsArray[picsIndex]?.url);
-    setMiddleImgUrl(picsArray[picsIndex + 1]?.url);
-    setRightImgUrl(picsArray[picsIndex + 2]?.url);
-  }
+  // Update media source based on current index
+  const setMediaSource = (arr, index) => {
+    setLeftImgUrl(arr[index]?.url || "");
+    setMiddleImgUrl(arr[index + 1]?.url || "");
+    setRightImgUrl(arr[index + 2]?.url || "");
+  };
 
   useEffect(() => {
     const pics = Object.values(mediaJson.pictures);
     shuffleArray(pics);
     setPicsArray(pics);
-    console.log(picsArray);
+    setPicsIndex(0);
+    setMediaSource(pics, 0);
 
-    setMediaSource();
+    // Setup interval
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    intervalRef.current = setInterval(() => {
+      setPicsIndex((prev) => {
+        const nextIndex = prev + 3;
+        if (nextIndex >= pics.length) {
+          shuffleArray(pics);
+          setPicsArray([...pics]); // trigger re-render
+          setMediaSource(pics, 0);
+          return 0;
+        } else {
+          setMediaSource(pics, nextIndex);
+          return nextIndex;
+        }
+      });
+    }, 15000);
+
+    return () => clearInterval(intervalRef.current); // cleanup
   }, [mediaJson]);
-
-  useEffect(() => {
-    picsIndexRef.current = picsIndex;
-  }, [picsIndex]);
-
-  setInterval(() => {
-    setPicsIndex(picsIndex + 3);
-
-    if (picsIndex >= picsArray.length) {
-      setPicsIndex(0);
-      shuffleArray(picsIndex);
-    }
-
-    setMediaSource();
-  }, 15000);
 
   return (
     <div className="grid md:grid-cols-3">
-      <BaseImagePreview src={leftImgUrl} />
-      <BaseImagePreview src={middleImgUrl} />
-      <BaseImagePreview src={rightImgUrl} />
+      <BaseImagePreview
+        src={leftImgUrl}
+        fullscreen
+      />
+      <BaseImagePreview
+        src={middleImgUrl}
+        fullscreen
+      />
+      <BaseImagePreview
+        src={rightImgUrl}
+        fullscreen
+      />
     </div>
   );
 }
