@@ -1,4 +1,6 @@
 export default function BaseImagePreview({ src, alt = "image preview" }) {
+  if (!src) return;
+
   return (
     <div className="max-w-md mx-auto">
       <img

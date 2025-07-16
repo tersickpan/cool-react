@@ -61,7 +61,7 @@ export default function EditExist() {
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
               <BaseKeyDropdown />
-              <EntryKeyDropdown />
+              <EntryKeyDropdown disabled={!selectedBaseKey} />
               <BaseLabel>URL</BaseLabel>
               <BaseInput
                 value={currentUrl}

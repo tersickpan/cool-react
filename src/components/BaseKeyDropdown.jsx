@@ -44,6 +44,7 @@ export default function BaseKeyDropdown({ disabled }) {
         options={baseKeys}
         onChange={(e) => dispatch(setSelectedBaseKey(e.target.value))}
         disabled={disabled}
+        defaultOpt="Select a baddie"
       ></BaseDropdown>
     </>
   );

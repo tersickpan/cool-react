@@ -19,6 +19,7 @@ export default function EntryKeyDropdown({ disabled }) {
         options={entryKeys}
         onChange={(e) => dispatch(setSelectedEntryKey(e.target.value))}
         disabled={disabled}
+        defaultOpt="Which one?"
       ></BaseDropdown>
     </>
   );
