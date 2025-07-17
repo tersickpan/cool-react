@@ -21,7 +21,7 @@ function WallVideo() {
   const updateMedia = (picIdx, vidIdx) => {
     setLeftImgUrl(picsArray[picIdx]?.url || "");
     setMiddleVidUrl(vidsArray[vidIdx]?.url || "");
-    setRightImgUrl(picsArray[(picIdx + 1)]?.url || "");
+    setRightImgUrl(picsArray[picIdx + 1]?.url || "");
   };
 
   useEffect(() => {
@@ -75,13 +75,13 @@ function WallVideo() {
         src={leftImgUrl}
         className="max-w-none w-full h-screen p-0 rounded-none shadow-none object-cover"
       />
-      <BaseVideoPreview
+      {/* <BaseVideoPreview
         src={middleVidUrl}
         className="max-w-none w-full h-screen p-0 rounded-none shadow-none object-cover"
         onEnded={handleVideoEnd}
         muted
         loop={false}
-      />
+      /> */}
       <BaseImagePreview
         src={rightImgUrl}
         className="max-w-none w-full h-screen p-0 rounded-none shadow-none object-cover"
