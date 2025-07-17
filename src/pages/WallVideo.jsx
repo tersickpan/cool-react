@@ -36,9 +36,7 @@ function WallVideo() {
     setPicsIndex(0);
     setVidIndex(0);
 
-    if (pics.length > 0 && vids.length > 0) {
-      updateMedia(0, 0);
-    }
+    updateMedia(0, 0);
   }, [mediaJson]);
 
   const handleVideoEnd = () => {
@@ -73,7 +71,7 @@ function WallVideo() {
     <div className="grid md:grid-cols-3">
       <BaseImagePreview
         src={leftImgUrl}
-        className="max-w-none w-full h-screen p-0 rounded-none shadow-none object-cover"
+        fullscreen
       />
       {/* <BaseVideoPreview
         src={middleVidUrl}
@@ -84,7 +82,7 @@ function WallVideo() {
       /> */}
       <BaseImagePreview
         src={rightImgUrl}
-        className="max-w-none w-full h-screen p-0 rounded-none shadow-none object-cover"
+        fullscreen
       />
     </div>
   );
