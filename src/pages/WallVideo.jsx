@@ -19,14 +19,14 @@ function WallVideo() {
   const [rightImgUrl, setRightImgUrl] = useState("");
 
   const updateMedia = (picIdx, vidIdx) => {
-    setLeftImgUrl(picsArray[picIdx % picsArray.length]?.url);
-    setMiddleVidUrl(vidsArray[vidIdx % vidsArray.length]?.url);
-    setRightImgUrl(picsArray[(picIdx + 1) % picsArray.length]?.url);
+    setLeftImgUrl(picsArray[picIdx]?.url || "");
+    setMiddleVidUrl(vidsArray[vidIdx]?.url || "");
+    setRightImgUrl(picsArray[(picIdx + 1)]?.url || "");
   };
 
   useEffect(() => {
-    const pics = Object.values(mediaJson.pictures || {});
-    const vids = Object.values(mediaJson.videos || {});
+    const pics = Object.values(mediaJson.pictures);
+    const vids = Object.values(mediaJson.videos);
 
     shuffleArray(pics);
     shuffleArray(vids);
