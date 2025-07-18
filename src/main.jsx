@@ -54,6 +54,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               </RequireJsonLoader>
             }
           />
+          <Route
+            path="*"
+            element={<App />}
+          />
         </Routes>
       </BrowserRouter>
     </Provider>
