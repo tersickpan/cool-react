@@ -1,68 +1,93 @@
-import { useSelector } from "react-redux";
-import { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import {
+  setCurrPicsArr,
+  setCurrVidsArr,
+  setPicIndex,
+  setVidIndex,
+  setLeftUrl,
+  setMiddleUrl,
+  setRightUrl,
+  setVideoVolume,
+} from "../store/wallpaperSlice";
 
 import BaseImagePreview from "../components/base/BaseImagePreview";
 import BaseVideoPreview from "../components/base/BaseVideoPreview";
 import shuffleArray from "../utils/shuffleArray";
 
 function WallVideo() {
+  const dispatch = useDispatch();
   const mediaJson = useSelector((state) => state.mediaData.mediaJson);
+  const currPicsArr = useSelector((state) => state.wallpaper.currPicsArr);
+  const currVidsArr = useSelector((state) => state.wallpaper.currVidsArr);
+  const picIndex = useSelector((state) => state.wallpaper.picIndex);
+  const vidIndex = useSelector((state) => state.wallpaper.vidIndex);
+  const leftUrl = useSelector((state) => state.wallpaper.leftUrl);
+  const middleUrl = useSelector((state) => state.wallpaper.middleUrl);
+  const rightUrl = useSelector((state) => state.wallpaper.rightUrl);
+  const videoVolume = useSelector((state) => state.wallpaper.videoVolume);
 
-  const [picsArray, setPicsArray] = useState([]);
-  const [picsIndex, setPicsIndex] = useState(0);
-  const intervalRef = useRef(null);
+  const setMediaSource = () => {
+    dispatch(setLeftUrl(currPicsArr[picIndex]?.url || ""));
+    dispatch(setMiddleUrl(currVidsArr[vidIndex]?.url || ""));
+    dispatch(setRightUrl(currPicsArr[picIndex + 1]?.url || ""));
+    dispatch(setVideoVolume(currVidsArr[vidIndex]?.volume || 0.07));
+  };
 
-  const [leftImgUrl, setLeftImgUrl] = useState("");
-  const [middleImgUrl, setMiddleImgUrl] = useState("");
-  const [rightImgUrl, setRightImgUrl] = useState("");
+  const handleOnEnded = () => {
+    const nextPicIndex = picIndex + 2;
+    if (nextPicIndex >= currPicsArr.length) {
+      const arr = [...currPicsArr];
+      shuffleArray(arr);
+      dispatch(setCurrPicsArr(arr));
+      dispatch(setPicIndex(0));
+    } else {
+      dispatch(setPicIndex(nextPicIndex));
+    }
 
-  // Update media source based on current index
-  const setMediaSource = (arr, index) => {
-    setLeftImgUrl(arr[index]?.url || "");
-    setMiddleImgUrl(arr[index + 1]?.url || "");
-    setRightImgUrl(arr[index + 2]?.url || "");
+    const nextVidIndex = vidIndex + 1;
+    if (nextVidIndex >= currVidsArr.length) {
+      const arr = [...currVidsArr];
+      shuffleArray(arr);
+      dispatch(setCurrVidsArr(arr));
+      dispatch(setVidIndex(0));
+    } else {
+      dispatch(setVidIndex(nextVidIndex));
+    }
+
+    setMediaSource();
   };
 
   useEffect(() => {
     const pics = Object.values(mediaJson.pictures);
+    const vids = Object.values(mediaJson.videos);
     shuffleArray(pics);
-    setPicsArray(pics);
-    setPicsIndex(0);
-    setMediaSource(pics, 0);
-
-    // Setup interval
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    intervalRef.current = setInterval(() => {
-      setPicsIndex((prev) => {
-        const nextIndex = prev + 3;
-        if (nextIndex >= pics.length) {
-          shuffleArray(pics);
-          setPicsArray([...pics]); // trigger re-render
-          setMediaSource(pics, 0);
-          return 0;
-        } else {
-          setMediaSource(pics, nextIndex);
-          return nextIndex;
-        }
-      });
-    }, 15000);
-
-    return () => clearInterval(intervalRef.current); // cleanup
+    shuffleArray(vids);
+    dispatch(setCurrPicsArr(pics));
+    dispatch(setCurrVidsArr(vids));
+    dispatch(setPicIndex(0));
+    dispatch(setVidIndex(0));
+    setMediaSource();
   }, [mediaJson]);
+
+  useEffect(() => {
+    setMediaSource();
+  }, [currPicsArr, currVidsArr, picIndex, vidIndex]);
 
   return (
     <div className="grid md:grid-cols-3">
       <BaseImagePreview
-        src={leftImgUrl}
+        src={leftUrl}
         fullscreen
       />
-      <BaseImagePreview
-        src={middleImgUrl}
-        fullscreen
+      <BaseVideoPreview
+        src={middleUrl}
+        volume={videoVolume}
+        loop={false}
+        onEnded={handleOnEnded}
       />
       <BaseImagePreview
-        src={rightImgUrl}
+        src={rightUrl}
         fullscreen
       />
     </div>
