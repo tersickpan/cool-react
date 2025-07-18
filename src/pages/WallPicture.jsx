@@ -60,22 +60,28 @@ function WallPicture() {
         />
       </div>
       {/* Phone screens: 3 images in a row */}
-      <div className="hidden sm:flex md:hidden flex-col bg-zinc-950 min-h-screen w-full">
-        <BaseImagePreview
-          src={leftImgUrl}
-          wallpaper
-        />
-        <BaseImagePreview
-          src={middleImgUrl}
-          wallpaper
-        />
-        <BaseImagePreview
-          src={rightImgUrl}
-          wallpaper
-        />
+      <div className="hidden sm:flex lg:hidden flex-col bg-zinc-950 h-screen w-full">
+        <div className="flex-1 flex">
+          <BaseImagePreview
+            src={leftImgUrl}
+            wallpaper
+          />
+        </div>
+        <div className="flex-1 flex">
+          <BaseImagePreview
+            src={middleImgUrl}
+            wallpaper
+          />
+        </div>
+        <div className="flex-1 flex">
+          <BaseImagePreview
+            src={rightImgUrl}
+            wallpaper
+          />
+        </div>
       </div>
       {/* Desktop: 3 images in columns */}
-      <div className="hidden md:grid md:grid-cols-3 bg-zinc-950 min-h-screen w-full">
+      <div className="hidden lg:grid md:grid-cols-3 bg-zinc-950 min-h-screen w-full">
         <BaseImagePreview
           src={leftImgUrl}
           wallpaper
