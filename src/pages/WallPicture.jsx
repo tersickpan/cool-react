@@ -51,20 +51,45 @@ function WallPicture() {
   }, [mediaJson]);
 
   return (
-    <div className="grid md:grid-cols-3">
-      <BaseImagePreview
-        src={leftImgUrl}
-        fullscreen
-      />
-      <BaseImagePreview
-        src={middleImgUrl}
-        fullscreen
-      />
-      <BaseImagePreview
-        src={rightImgUrl}
-        fullscreen
-      />
-    </div>
+    <>
+      {/* Extra small screens: only middle image */}
+      <div className="sm:hidden w-full h-screen flex items-center justify-center bg-zinc-950">
+        <BaseImagePreview
+          src={middleImgUrl}
+          wallpaper
+        />
+      </div>
+      {/* Phone screens: 3 images in a row */}
+      <div className="hidden sm:flex md:hidden flex-col bg-zinc-950 min-h-screen w-full">
+        <BaseImagePreview
+          src={leftImgUrl}
+          wallpaper
+        />
+        <BaseImagePreview
+          src={middleImgUrl}
+          wallpaper
+        />
+        <BaseImagePreview
+          src={rightImgUrl}
+          wallpaper
+        />
+      </div>
+      {/* Desktop: 3 images in columns */}
+      <div className="hidden md:grid md:grid-cols-3 bg-zinc-950 min-h-screen w-full">
+        <BaseImagePreview
+          src={leftImgUrl}
+          wallpaper
+        />
+        <BaseImagePreview
+          src={middleImgUrl}
+          wallpaper
+        />
+        <BaseImagePreview
+          src={rightImgUrl}
+          wallpaper
+        />
+      </div>
+    </>
   );
 }
 
