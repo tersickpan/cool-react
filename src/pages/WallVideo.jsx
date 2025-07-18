@@ -70,6 +70,10 @@ function WallVideo() {
     setMediaSource();
   }, [mediaJson]);
 
+  useEffect(() => {
+    setMediaSource();
+  }, [currPicsArr, currVidsArr, picIndex, vidIndex]);
+
   return (
     <div className="grid md:grid-cols-3">
       <BaseImagePreview
