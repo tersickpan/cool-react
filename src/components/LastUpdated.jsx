@@ -17,11 +17,11 @@ function LastUpdated() {
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
-      <SectionCard>
+      <SectionCard className={"flex flex-col items-center"}>
         <BaseLabel>{picLabel}</BaseLabel>
         <BaseImagePreview src={latestPic.url} />
       </SectionCard>
-      <SectionCard>
+      <SectionCard className={"flex flex-col items-center"}>
         <BaseLabel>{vidLabel}</BaseLabel>
         <BaseVideoPreview
           src={latestVid.url}

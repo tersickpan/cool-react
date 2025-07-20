@@ -31,7 +31,9 @@ function WallVideo() {
     dispatch(setLeftUrl(currPicsArr[picIndex]?.url || ""));
     dispatch(setMiddleUrl(currVidsArr[vidIndex]?.url || ""));
     dispatch(setRightUrl(currPicsArr[picIndex + 1]?.url || ""));
-    dispatch(setVideoVolume(currVidsArr[vidIndex]?.volume || 0.07));
+    const rawVolume = currVidsArr[vidIndex]?.volume;
+    const parsedVolume = rawVolume !== undefined ? parseFloat(rawVolume) : 0.07;
+    dispatch(setVideoVolume(isNaN(parsedVolume) ? 0.07 : parsedVolume));
   };
 
   const handleOnEnded = () => {
@@ -75,22 +77,36 @@ function WallVideo() {
   }, [currPicsArr, currVidsArr, picIndex, vidIndex]);
 
   return (
-    <div className="grid md:grid-cols-3">
-      <BaseImagePreview
-        src={leftUrl}
-        fullscreen
-      />
-      <BaseVideoPreview
-        src={middleUrl}
-        volume={videoVolume}
-        loop={false}
-        onEnded={handleOnEnded}
-      />
-      <BaseImagePreview
-        src={rightUrl}
-        fullscreen
-      />
-    </div>
+    <>
+      {/* Extra small screens: only video */}
+      <div className="sm:hidden w-full h-screen flex items-center justify-center bg-zinc-950">
+        <BaseVideoPreview
+          src={middleUrl}
+          volume={videoVolume}
+          loop={false}
+          onEnded={handleOnEnded}
+          wallpaper
+        />
+      </div>
+      {/* Small and up: grid layout */}
+      <div className="hidden sm:grid md:grid-cols-3 bg-zinc-950 min-h-screen w-full">
+        <BaseImagePreview
+          src={leftUrl}
+          wallpaper
+        />
+        <BaseVideoPreview
+          src={middleUrl}
+          volume={videoVolume}
+          loop={false}
+          onEnded={handleOnEnded}
+          wallpaper
+        />
+        <BaseImagePreview
+          src={rightUrl}
+          wallpaper
+        />
+      </div>
+    </>
   );
 }
 
