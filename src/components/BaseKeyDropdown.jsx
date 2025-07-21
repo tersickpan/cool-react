@@ -1,15 +1,14 @@
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setBaseKeys,
-  setSelectedBaseKey,
-  setEntryKeys,
-} from "../store/mediaEditorSlice";
+import { setSelectedBaseKey, setEntryKeys } from "../store/mediaEditorSlice";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
-import { useEffect } from "react";
+import getRandomEntry from "../utils/getRandomEntry";
 
-export default function BaseKeyDropdown({ disabled }) {
+export default function BaseKeyDropdown({
+  disabled,
+  setCurrentBaddieForPreview,
+}) {
   const dispatch = useDispatch();
   const selectedBaseKey = useSelector(
     (state) => state.mediaEditor.selectedBaseKey
@@ -18,23 +17,22 @@ export default function BaseKeyDropdown({ disabled }) {
   const mediaType = useSelector((state) => state.mediaData.mediaType);
   const mediaJson = useSelector((state) => state.mediaData.mediaJson);
 
-  useEffect(() => {
-    if (!mediaType) return;
+  const handleBaseKeyChange = ({ value }) => {
+    dispatch(setSelectedBaseKey(value));
 
-    const keys = Object.keys(mediaJson[mediaType]);
-    const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
+    if (setCurrentBaddieForPreview) {
+      setCurrentBaddieForPreview(getRandomEntry(mediaJson[mediaType], value));
+    }
 
-    dispatch(setBaseKeys(allKeysByBase));
-  }, [mediaType]);
+    if (value) {
+      const keys = Object.keys(mediaJson[mediaType]);
+      const options = keys.filter((k) => k.startsWith(value + "-"));
 
-  useEffect(() => {
-    if (!selectedBaseKey) return;
-
-    const keys = Object.keys(mediaJson[mediaType]);
-    const options = keys.filter((k) => k.startsWith(selectedBaseKey + "-"));
-
-    dispatch(setEntryKeys(options));
-  }, [selectedBaseKey]);
+      dispatch(setEntryKeys(options));
+    } else {
+      dispatch(setEntryKeys([]));
+    }
+  };
 
   return (
     <>
@@ -42,7 +40,7 @@ export default function BaseKeyDropdown({ disabled }) {
       <BaseDropdown
         value={selectedBaseKey}
         options={baseKeys}
-        onChange={(e) => dispatch(setSelectedBaseKey(e.target.value))}
+        onChange={(e) => handleBaseKeyChange(e.target)}
         disabled={disabled}
         defaultOpt="Select a baddie"
       ></BaseDropdown>

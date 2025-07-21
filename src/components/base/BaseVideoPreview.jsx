@@ -37,6 +37,7 @@ export default function BaseVideoPreview({
         loop={loop}
         muted={muted}
         className={videoClass}
+        volume={volume}
         {...props}
       />
     </div>
