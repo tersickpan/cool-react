@@ -21,7 +21,11 @@ export default function BaseVideoPreview({
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.volume = volume;
+      if(typeof volume === 'number') {
+        videoRef.current.volume = volume;
+      } else {
+        videoRef.current.volume = parseFloat(volume)
+      }
     }
   }, [volume]);
 
@@ -37,7 +41,6 @@ export default function BaseVideoPreview({
         loop={loop}
         muted={muted}
         className={videoClass}
-        volume={volume}
         {...props}
       />
     </div>

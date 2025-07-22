@@ -31,9 +31,7 @@ function WallVideo() {
     dispatch(setLeftUrl(currPicsArr[picIndex]?.url || ""));
     dispatch(setMiddleUrl(currVidsArr[vidIndex]?.url || ""));
     dispatch(setRightUrl(currPicsArr[picIndex + 1]?.url || ""));
-    const rawVolume = currVidsArr[vidIndex]?.volume;
-    const parsedVolume = rawVolume !== undefined ? parseFloat(rawVolume) : 0.07;
-    dispatch(setVideoVolume(isNaN(parsedVolume) ? 0.07 : parsedVolume));
+    dispatch(setVideoVolume(currVidsArr[vidIndex]?.volume || 0.07));
   };
 
   const handleOnEnded = () => {

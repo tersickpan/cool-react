@@ -46,7 +46,7 @@ export default function AddNew() {
     console.log({
       baseKey: newBaddie ? newBaddie : selectedBaseKey,
       url: newUrl,
-      ...(mediaType === "videos" && { volume: parseFloat(newVolume) }),
+      ...(mediaType === "videos" && { volume: newVolume }),
       timestamp: new Date().toISOString(),
     });
   };
@@ -100,8 +100,6 @@ export default function AddNew() {
                       src={currentBaddie.url}
                       volume={
                         currentBaddie.volume
-                          ? parseFloat(currentBaddie.volume)
-                          : 0.07
                       }
                     />
                     {newBaddie && (

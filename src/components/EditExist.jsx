@@ -51,7 +51,7 @@ export default function EditExist() {
     console.log({
       baseKey: selectedEntryKey,
       url: currentUrl,
-      ...(mediaType === "videos" && { volume: parseFloat(currentVolume) }),
+      ...(mediaType === "videos" && { volume: currentVolume }),
       timestamp: new Date().toISOString(),
     });
   };
