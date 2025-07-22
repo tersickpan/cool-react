@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setMediaType } from "../store/mediaDataSlice";
 import {
+  setBaseKeys,
   setSelectedBaseKey,
   setSelectedEntryKey,
 } from "../store/mediaEditorSlice";
@@ -11,6 +12,7 @@ import BaseDropdown from "./base/BaseDropdown";
 
 export default function MediaDropdown() {
   const dispatch = useDispatch();
+  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
 
   const mediaOptions = [
@@ -19,6 +21,12 @@ export default function MediaDropdown() {
   ];
 
   const handleChange = ({ value }) => {
+    if (value) {
+      const keys = Object.keys(mediaJson[value]);
+      const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
+      dispatch(setBaseKeys(allKeysByBase));
+    }
+
     dispatch(setSelectedEntryKey(""));
     dispatch(setSelectedBaseKey(""));
     dispatch(setMediaType(value));

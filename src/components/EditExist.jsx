@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedEntryKey } from "../store/mediaEditorSlice";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -13,6 +14,7 @@ import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 
 export default function EditExist() {
+  const dispatch = useDispatch();
   const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
   const selectedBaseKey = useSelector(
@@ -25,14 +27,15 @@ export default function EditExist() {
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
 
-  useEffect(() => {
-    if (!selectedEntryKey) return;
+  const handleSelectedEntryKey = ({ value }) => {
+    if (!value) return;
 
-    const baddie = mediaJson[mediaType][selectedEntryKey];
+    dispatch(setSelectedEntryKey(value));
+    const baddie = mediaJson[mediaType][value];
 
     setCurrentUrl(baddie.url);
     if (baddie.volume) setCurrentVolume(baddie.volume);
-  }, [selectedEntryKey]);
+  };
 
   const handleEdit = () => {
     if (!selectedBaseKey || !selectedEntryKey || !currentUrl) {
@@ -48,7 +51,7 @@ export default function EditExist() {
     console.log({
       baseKey: selectedEntryKey,
       url: currentUrl,
-      ...(mediaType === "videos" && { volume: parseFloat(currentVolume) }),
+      ...(mediaType === "videos" && { volume: currentVolume }),
       timestamp: new Date().toISOString(),
     });
   };
@@ -61,7 +64,10 @@ export default function EditExist() {
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
               <BaseKeyDropdown />
-              <EntryKeyDropdown disabled={!selectedBaseKey} />
+              <EntryKeyDropdown
+                disabled={!selectedBaseKey}
+                handleSelectedEntryKey={handleSelectedEntryKey}
+              />
               <BaseLabel>URL</BaseLabel>
               <BaseInput
                 value={currentUrl}

@@ -21,9 +21,13 @@ export default function BaseVideoPreview({
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.volume = volume;
+      if (typeof volume === "number") {
+        videoRef.current.volume = volume;
+      } else {
+        videoRef.current.volume = parseFloat(volume);
+      }
     }
-  }, [volume]);
+  }, [volume, src]);
 
   if (!src) return;
 
