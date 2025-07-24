@@ -27,7 +27,7 @@ export default function MediaDropdown() {
       const keys = Object.keys(mediaJson[value]);
       const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
       dispatch(setBaseKeys(allKeysByBase));
-      dispatch(setEntryKeys(keys));
+      //dispatch(setEntryKeys(keys));
     }
 
     dispatch(setSelectedEntryKey(""));

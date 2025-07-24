@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
 
-export default function EntryKeyDropdown({ disabled, handleSelectedEntryKey }) {
+export default function EntryKeyDropdown({ disabled, defaultOpt="Which one?", handleSelectedEntryKey }) {
   const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
   const selectedEntryKey = useSelector(
     (state) => state.mediaEditor.selectedEntryKey
@@ -17,7 +17,7 @@ export default function EntryKeyDropdown({ disabled, handleSelectedEntryKey }) {
         options={entryKeys}
         onChange={(e) => handleSelectedEntryKey(e.target)}
         disabled={disabled}
-        defaultOpt="Which one?"
+        defaultOpt={defaultOpt}
       ></BaseDropdown>
     </>
   );

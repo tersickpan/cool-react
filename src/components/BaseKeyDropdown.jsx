@@ -7,6 +7,7 @@ import getRandomEntry from "../utils/getRandomEntry";
 
 export default function BaseKeyDropdown({
   disabled,
+  defaultOpt="Select a baddie",
   setCurrentBaddieForPreview,
 }) {
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ export default function BaseKeyDropdown({
         options={baseKeys}
         onChange={(e) => handleBaseKeyChange(e.target)}
         disabled={disabled}
-        defaultOpt="Select a baddie"
+        defaultOpt={defaultOpt}
       ></BaseDropdown>
     </>
   );
