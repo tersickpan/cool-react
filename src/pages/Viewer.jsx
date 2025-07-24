@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedEntryKey } from "../store/mediaEditorSlice.js";
 
@@ -16,6 +16,9 @@ export default function Viewer() {
   const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const selectedBaseKey = useSelector(
     (state) => state.mediaEditor.selectedBaseKey
+  );
+  const selectedEntryKey = useSelector(
+    (state) => state.mediaEditor.selectedEntryKey
   );
   const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
   const sortMode = useSelector((state) => state.mediaEditor.sortMode);
@@ -38,6 +41,13 @@ export default function Viewer() {
     setCurrentUrl(baddie.url);
     if (baddie.volume) setCurrentVolume(baddie.volume);
   };
+
+  useEffect(() => {
+    const baddie = mediaJson[mediaType][selectedEntryKey];
+    console.log("useEffect baddie: ", baddie);
+    setCurrentUrl(baddie.url);
+    if (baddie.volume) setCurrentVolume(baddie.volume);
+  },)
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6 space-y-6">
