@@ -1,11 +1,9 @@
-import { useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setMediaType } from "../store/mediaDataSlice";
 import {
   setSortMode,
   setBaseKeys,
   setSelectedBaseKey,
-  setEntryKeys,
   setSelectedEntryKey,
 } from "../store/mediaEditorSlice";
 
