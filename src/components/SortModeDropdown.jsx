@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   setBaseKeys,
   setEntryKeys,
+  setSelectedBaseKey,
   setSelectedEntryKey,
   setSortMode,
 } from "../store/mediaEditorSlice";
@@ -29,7 +30,9 @@ export default function SortModeDropdown() {
       const keys = Object.keys(mediaJson[mediaType]);
       const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
       dispatch(setBaseKeys(allKeysByBase));
+      dispatch(setSelectedBaseKey(""));
       dispatch(setSelectedEntryKey(""));
+      dispatch(setEntryKeys([]));
       return;
     }
 

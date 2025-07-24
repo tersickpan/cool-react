@@ -9,6 +9,7 @@ import EntryKeyDropdown from "../components/EntryKeyDropdown.jsx";
 import SectionCard from "../components/base/SectionCard.jsx";
 import BaseImagePreview from "../components/base/BaseImagePreview.jsx";
 import BaseVideoPreview from "../components/base/BaseVideoPreview.jsx";
+import BaseButton from "../components/base/BaseButton.jsx";
 
 export default function Viewer() {
   const dispatch = useDispatch();
@@ -18,6 +19,10 @@ export default function Viewer() {
     (state) => state.mediaEditor.selectedBaseKey
   );
   const sortMode = useSelector((state) => state.mediaEditor.sortMode);
+  const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
+  const selectedEntryKey = useSelector(
+    (state) => state.mediaEditor.selectedEntryKey
+  );
 
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
@@ -30,6 +35,20 @@ export default function Viewer() {
 
     setCurrentUrl(baddie.url);
     if (baddie.volume) setCurrentVolume(baddie.volume);
+  };
+
+  const handleNavButtonClick = (direction) => {
+    const currentIndex = entryKeys.indexOf(selectedEntryKey);
+    let newIndex;
+
+    if (direction === "next") {
+      newIndex = (currentIndex + 1) % entryKeys.length;
+    } else {
+      newIndex = (currentIndex - 1 + entryKeys.length) % entryKeys.length;
+    }
+
+    const newEntryKey = entryKeys[newIndex];
+    handleSelectedEntryKey({ value: newEntryKey });
   };
 
   return (
@@ -47,6 +66,24 @@ export default function Viewer() {
               disabled={!selectedBaseKey & (sortMode === "default")}
               handleSelectedEntryKey={handleSelectedEntryKey}
             />
+            <div className="grid md:grid-cols-2 p-10 gap-10">
+              <BaseButton
+                key={"prev"}
+                disabled={entryKeys.length === 0}
+                icon={"◀️"}
+                onClick={() => handleNavButtonClick("prev")}
+              >
+                Prev
+              </BaseButton>
+              <BaseButton
+                key={"next"}
+                disabled={entryKeys.length === 0}
+                icon={"▶️"}
+                onClick={() => handleNavButtonClick("next")}
+              >
+                Next
+              </BaseButton>
+            </div>
           </SectionCard>
           <SectionCard>
             {mediaType === "pictures" && <BaseImagePreview src={currentUrl} />}
