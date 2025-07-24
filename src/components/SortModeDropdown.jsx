@@ -23,11 +23,8 @@ export default function SortModeDropdown() {
     if (value === "default") {
       const keys = Object.keys(mediaJson[mediaType]);
       const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
-      dispatch(setBaseKeys(allKeysByBase))
-      dispatch(setSelectedBaseKey(keys[0]))
-      dispatch(setSelectedEntryKey(keys[0]))
-      //const options = Object.keys(mediaJson[mediaType]);
-      //dispatch(setEntryKeys(options));
+      dispatch(setBaseKeys(allKeysByBase));
+      dispatch(setSelectedEntryKey(""));
       return;
     }
 

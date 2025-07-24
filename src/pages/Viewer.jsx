@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedEntryKey } from "../store/mediaEditorSlice.js";
 
@@ -42,13 +42,6 @@ export default function Viewer() {
     if (baddie.volume) setCurrentVolume(baddie.volume);
   };
 
-  useEffect(() => {
-    const baddie = mediaJson[mediaType][selectedEntryKey];
-    console.log("useEffect baddie: ", baddie);
-    setCurrentUrl(baddie.url);
-    if (baddie.volume) setCurrentVolume(baddie.volume);
-  },)
-
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6 space-y-6">
       <h1 className="text-3xl text-pink-400 font-bold">
@@ -59,8 +52,8 @@ export default function Viewer() {
         <div className="grid md:grid-cols-2 gap-6">
           <SectionCard>
             <SortModeDropdown />
-            <BaseKeyDropdown disabled={sortMode !== "default"} defaultOpt=""/>
-            <EntryKeyDropdown disabled={!selectedBaseKey & sortMode !== "default"} defaultOpt="" handleSelectedEntryKey={handleSelectedEntryKey} />
+            <BaseKeyDropdown disabled={sortMode !== "default"}/>
+            <EntryKeyDropdown disabled={!selectedBaseKey & sortMode !== "default"} handleSelectedEntryKey={handleSelectedEntryKey} />
           </SectionCard>
           <SectionCard>
             {/* {mediaType === "pictures" && <BaseImagePreview src={currentUrl} />}

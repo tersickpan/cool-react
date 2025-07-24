@@ -15,7 +15,6 @@ import BaseDropdown from "./base/BaseDropdown";
 
 export default function MediaDropdown() {
   const dispatch = useDispatch();
-  const location = useLocation();
   const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
 
@@ -29,12 +28,6 @@ export default function MediaDropdown() {
       const keys = Object.keys(mediaJson[value]);
       const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
       dispatch(setBaseKeys(allKeysByBase));
-      if (location.pathname === 'xviewx') {
-        console.log("location: ", location);
-        dispatch(setSelectedBaseKey(keys[0]))
-        dispatch(setSelectedEntryKey(keys[0]))
-      }
-      //dispatch(setEntryKeys(keys));
     }
 
     dispatch(setSelectedEntryKey(""));
