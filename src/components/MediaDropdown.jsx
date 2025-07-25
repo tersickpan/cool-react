@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setMediaType } from "../store/mediaDataSlice";
 import {
+  setSortMode,
   setBaseKeys,
   setSelectedBaseKey,
   setSelectedEntryKey,
@@ -29,6 +30,7 @@ export default function MediaDropdown() {
 
     dispatch(setSelectedEntryKey(""));
     dispatch(setSelectedBaseKey(""));
+    dispatch(setSortMode("default"));
     dispatch(setMediaType(value));
   };
 
