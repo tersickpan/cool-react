@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setSelectedBaseKey } from "../store/mediaEditorSlice";
+import { setSelectedBaseKey, setEntryKeys } from "../store/mediaEditorSlice";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -11,6 +11,7 @@ import BaseButton from "./base/BaseButton";
 import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
+import BaseFileUploader from "./base/BaseFileUploader";
 
 export default function AddNew() {
   const dispatch = useDispatch();
@@ -18,18 +19,31 @@ export default function AddNew() {
   const selectedBaseKey = useSelector(
     (state) => state.mediaEditor.selectedBaseKey
   );
+  const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
 
   const [currentBaddie, setCurrentBaddie] = useState({});
   const [newBaddie, setNewBaddie] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newVolume, setNewVolume] = useState(0.07);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   const handleNewBaddie = (value) => {
     setNewBaddie(value);
 
-    if (value.trim() !== "") {
+    if (value.trim() !== "" && selectedBaseKey !== "") {
       dispatch(setSelectedBaseKey(""));
+      dispatch(setEntryKeys([]));
     }
+  };
+
+  const onNewFileSelected = (file) => {
+    if (!file) {
+      setUploadedFile(null);
+      setNewUrl("");
+      return;
+    }
+    setUploadedFile(file);
+    setNewUrl(URL.createObjectURL(file));
   };
 
   const handleAdd = () => {
@@ -38,13 +52,21 @@ export default function AddNew() {
       return;
     }
 
+    if (uploadedFile !== null) {
+      // If a file is uploaded, do some error checking and upload to cloud
+    }
+
     if (!isValidUrl(newUrl)) {
       alert("Invalid URL!");
       return;
     }
 
+    const key = newBaddie
+      ? `${newBaddie}-01`
+      : `${selectedBaseKey}-${String(entryKeys.length + 1).padStart(2, "0")}`;
+
     console.log({
-      baseKey: newBaddie ? newBaddie : selectedBaseKey,
+      baseKey: key,
       url: newUrl,
       ...(mediaType === "videos" && { volume: newVolume }),
       timestamp: new Date().toISOString(),
@@ -58,6 +80,11 @@ export default function AddNew() {
         <>
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
+              <BaseFileUploader
+                onFileSelect={onNewFileSelected}
+                vidVolume={newVolume}
+                mediaType={mediaType}
+              />
               <BaseLabel>New Baddie🤤</BaseLabel>
               <BaseInput
                 value={newBaddie}
@@ -91,18 +118,16 @@ export default function AddNew() {
                 {mediaType === "pictures" && (
                   <>
                     <BaseImagePreview src={currentBaddie.url} />
-                    {newBaddie && <BaseImagePreview src={newUrl} />}
+                    {newUrl && <BaseImagePreview src={newUrl} />}
                   </>
                 )}
                 {mediaType === "videos" && (
                   <>
                     <BaseVideoPreview
                       src={currentBaddie.url}
-                      volume={
-                        currentBaddie.volume
-                      }
+                      volume={currentBaddie.volume}
                     />
-                    {newBaddie && (
+                    {newUrl && (
                       <BaseVideoPreview
                         src={newUrl}
                         volume={newVolume}
