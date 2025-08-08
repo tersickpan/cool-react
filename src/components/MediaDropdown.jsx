@@ -6,6 +6,7 @@ import {
   setSelectedBaseKey,
   setSelectedEntryKey,
 } from "../store/mediaEditorSlice";
+import { setAllPreviewCleared } from "../store/mediaPreviewSlice";
 
 import SectionCard from "./base/SectionCard";
 import BaseLabel from "./base/BaseLabel";
@@ -28,6 +29,7 @@ export default function MediaDropdown() {
       dispatch(setBaseKeys(allKeysByBase));
     }
 
+    dispatch(setAllPreviewCleared());
     dispatch(setSelectedEntryKey(""));
     dispatch(setSelectedBaseKey(""));
     dispatch(setSortMode("default"));

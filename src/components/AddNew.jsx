@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedBaseKey, setEntryKeys } from "../store/mediaEditorSlice";
+import { setNewUrl, setNewVolume } from "../store/mediaPreviewSlice.js";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -20,11 +21,13 @@ export default function AddNew() {
     (state) => state.mediaEditor.selectedBaseKey
   );
   const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
+  const currentBaddie = useSelector(
+    (state) => state.mediaPreview.currentBaddie
+  );
+  const newUrl = useSelector((state) => state.mediaPreview.newUrl);
+  const newVolume = useSelector((state) => state.mediaPreview.newVolume);
 
-  const [currentBaddie, setCurrentBaddie] = useState({});
   const [newBaddie, setNewBaddie] = useState("");
-  const [newUrl, setNewUrl] = useState("");
-  const [newVolume, setNewVolume] = useState(0.07);
   const [uploadedFile, setUploadedFile] = useState(null);
 
   const handleNewBaddie = (value) => {
@@ -39,11 +42,11 @@ export default function AddNew() {
   const onNewFileSelected = (file) => {
     if (!file) {
       setUploadedFile(null);
-      setNewUrl("");
+      dispatch(setNewUrl(""));
       return;
     }
     setUploadedFile(file);
-    setNewUrl(URL.createObjectURL(file));
+    dispatch(setNewUrl(URL.createObjectURL(file)));
   };
 
   const handleAdd = () => {
@@ -92,12 +95,12 @@ export default function AddNew() {
               />
               <BaseKeyDropdown
                 disabled={newBaddie}
-                setCurrentBaddieForPreview={setCurrentBaddie}
+                setCurrentBaddieForPreview={true}
               />
               <BaseLabel>URL</BaseLabel>
               <BaseInput
                 value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
+                onChange={(e) => dispatch(setNewUrl(e.target.value))}
               />
               {mediaType === "videos" && (
                 <>
@@ -105,7 +108,7 @@ export default function AddNew() {
                   <BaseInput
                     type="number"
                     value={newVolume}
-                    onChange={(e) => setNewVolume(e.target.value)}
+                    onChange={(e) => dispatch(setNewVolume(e.target.value))}
                     min={0}
                     max={1}
                     step={0.01}

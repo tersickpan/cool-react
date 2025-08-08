@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedEntryKey } from "../store/mediaEditorSlice";
+import { setCurrentUrl, setCurrentVolume } from "../store/mediaPreviewSlice.js";
 import { refreshMediaJson } from "../store/refreshMediaJson.js";
 
 import BaseLabel from "./base/BaseLabel";
@@ -25,9 +26,11 @@ export default function EditExist() {
   const selectedEntryKey = useSelector(
     (state) => state.mediaEditor.selectedEntryKey
   );
+  const currentUrl = useSelector((state) => state.mediaPreview.currentUrl);
+  const currentVolume = useSelector(
+    (state) => state.mediaPreview.currentVolume
+  );
 
-  const [currentUrl, setCurrentUrl] = useState("");
-  const [currentVolume, setCurrentVolume] = useState(0.07);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSelectedEntryKey = ({ value }) => {
@@ -36,8 +39,8 @@ export default function EditExist() {
     dispatch(setSelectedEntryKey(value));
     const baddie = mediaJson[mediaType][value];
 
-    setCurrentUrl(baddie.url);
-    if (baddie.volume) setCurrentVolume(baddie.volume);
+    dispatch(setCurrentUrl(baddie.url));
+    if (baddie.volume) dispatch(setCurrentVolume(baddie.volume));
   };
 
   const handleEdit = () => {
@@ -108,7 +111,7 @@ export default function EditExist() {
               <BaseLabel>URL</BaseLabel>
               <BaseInput
                 value={currentUrl}
-                onChange={(e) => setCurrentUrl(e.target.value)}
+                onChange={(e) => dispatch(setCurrentUrl(e.target.value))}
               />
               {mediaType === "videos" && (
                 <>
@@ -116,7 +119,7 @@ export default function EditExist() {
                   <BaseInput
                     type="number"
                     value={currentVolume}
-                    onChange={(e) => setCurrentVolume(e.target.value)}
+                    onChange={(e) => dispatch(setCurrentVolume(e.target.value))}
                     min={0}
                     max={1}
                     step={0.01}

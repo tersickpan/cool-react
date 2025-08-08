@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedBaseKey, setEntryKeys } from "../store/mediaEditorSlice";
+import { setCurrentBaddie } from "../store/mediaPreviewSlice.js";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
@@ -7,8 +8,8 @@ import getRandomEntry from "../utils/getRandomEntry";
 
 export default function BaseKeyDropdown({
   disabled,
-  defaultOpt="Select a baddie",
-  setCurrentBaddieForPreview,
+  defaultOpt = "Select a baddie",
+  setCurrentBaddieForPreview = false,
 }) {
   const dispatch = useDispatch();
   const selectedBaseKey = useSelector(
@@ -22,7 +23,7 @@ export default function BaseKeyDropdown({
     dispatch(setSelectedBaseKey(value));
 
     if (setCurrentBaddieForPreview) {
-      setCurrentBaddieForPreview(getRandomEntry(mediaJson[mediaType], value));
+      dispatch(setCurrentBaddie(getRandomEntry(mediaJson[mediaType], value)));
     }
 
     if (value) {
