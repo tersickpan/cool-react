@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedEntryKey } from "../store/mediaEditorSlice";
+import { refreshMediaJson } from "../store/refreshMediaJson.js";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -12,6 +13,7 @@ import BaseButton from "./base/BaseButton";
 import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
+import BaseModal from "./base/BaseModal.jsx";
 
 export default function EditExist() {
   const dispatch = useDispatch();
@@ -26,6 +28,7 @@ export default function EditExist() {
 
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSelectedEntryKey = ({ value }) => {
     if (!value) return;
@@ -56,8 +59,42 @@ export default function EditExist() {
     });
   };
 
+  const handleDelete = () => {
+    if (!selectedBaseKey || !selectedEntryKey || !currentUrl) {
+      alert("Delete failed: Missing fields");
+      setIsModalOpen(false);
+      return;
+    }
+    delete mediaJson[mediaType][selectedEntryKey];
+    alert(`Deleted ${selectedEntryKey} successfully!`);
+    dispatch(refreshMediaJson());
+    setIsModalOpen(false);
+  };
+
   return (
     <>
+      <BaseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      >
+        <p className="text-center">
+          Sure you want to remove {selectedEntryKey || "this"} 😢?
+        </p>
+        <div className="mt-4 flex justify-center gap-4">
+          <button
+            className="bg-pink-500 hover:bg-pink-400 text-white px-4 py-2 rounded-xl"
+            onClick={handleDelete}
+          >
+            Yes
+          </button>
+          <button
+            className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded-xl"
+            onClick={() => setIsModalOpen(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </BaseModal>
       <MediaDropdown />
       {mediaType && (
         <>
@@ -101,7 +138,12 @@ export default function EditExist() {
               </div>
             </SectionCard>
           </div>
-          <BaseButton onClick={handleEdit}>Edit babe</BaseButton>
+          <div className="mt-6 flex justify-start gap-4">
+            <BaseButton onClick={handleEdit}>Edit babe</BaseButton>
+            <BaseButton onClick={() => setIsModalOpen(true)}>
+              Delete Babe
+            </BaseButton>
+          </div>
         </>
       )}
     </>
