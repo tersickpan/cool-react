@@ -76,6 +76,22 @@ export default function AddNew() {
     });
   };
 
+  async function apiTest() {
+    try {
+      const response = await fetch(
+        "https://cool-express.vercel.app/api/signuploadform"
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("API call successful:", data);
+      // You can use the data here (e.g., set state, show UI, etc.)
+    } catch (error) {
+      console.error("API fetch failed:", error);
+    }
+  }
+
   return (
     <>
       <MediaDropdown />
@@ -142,6 +158,7 @@ export default function AddNew() {
             </SectionCard>
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
+          <BaseButton onClick={apiTest}>Testing</BaseButton>
         </>
       )}
     </>
