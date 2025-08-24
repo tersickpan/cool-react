@@ -13,7 +13,6 @@ import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import BaseFileUploader from "./base/BaseFileUploader";
-import CloudinaryUploader from "./CloudinaryUploader.jsx";
 
 export default function AddNew() {
   const dispatch = useDispatch();
@@ -140,9 +139,6 @@ export default function AddNew() {
                   </>
                 )}
               </div>
-            </SectionCard>
-            <SectionCard className="col-span-1">
-              <CloudinaryUploader />
             </SectionCard>
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
