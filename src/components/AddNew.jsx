@@ -13,6 +13,7 @@ import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import BaseFileUploader from "./base/BaseFileUploader";
+import uploadNewFile from "../utils/uploadNewFile.js";
 
 export default function AddNew() {
   const dispatch = useDispatch();
@@ -78,17 +79,11 @@ export default function AddNew() {
 
   async function apiTest() {
     try {
-      const response = await fetch(
-        "https://cool-express.vercel.app/api/signuploadform"
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("API call successful:", data);
+      const uploadMedia = await uploadNewFile(uploadedFile, mediaType);
+      console.log("Upload successful:", uploadMedia);
       // You can use the data here (e.g., set state, show UI, etc.)
     } catch (error) {
-      console.error("API fetch failed:", error);
+      console.error("Upload failed:", error);
     }
   }
 
