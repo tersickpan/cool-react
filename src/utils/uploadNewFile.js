@@ -13,7 +13,7 @@ export default async function uploadNewFile(file, fileType) {
     formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
     formData.append("timestamp", timestamp);
     formData.append("signature", signature);
-    formData.append("folder", "test_uploads");
+    formData.append("folder", "baddies/temp");
     if (fileType === "picture") {
       formData.append("resource_type", "image");
     } else if (fileType === "video") {
