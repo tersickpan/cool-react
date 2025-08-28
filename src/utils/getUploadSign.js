@@ -1,8 +1,13 @@
-export default async function getUploadSign() {
+export default async function getUploadSign({ folder, entryKey }) {
   try {
-    const response = await fetch(
-      "https://cool-express.vercel.app/api/signuploadform"
-    );
+    const params = new URLSearchParams({
+      folder,
+      entryKey,
+    });
+
+    const url = `https://cool-express.vercel.app/api/signuploadform?${params.toString()}`;
+
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

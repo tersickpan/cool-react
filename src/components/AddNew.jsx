@@ -79,7 +79,12 @@ export default function AddNew() {
 
   async function apiTest() {
     try {
-      const uploadMedia = await uploadNewFile(uploadedFile, mediaType);
+      const uploadMedia = await uploadNewFile(
+        uploadedFile,
+        mediaType,
+        "temp",
+        "testing"
+      );
       console.log("Upload successful:", uploadMedia);
       // You can use the data here (e.g., set state, show UI, etc.)
     } catch (error) {
