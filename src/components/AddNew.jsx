@@ -113,11 +113,11 @@ export default function AddNew() {
                 disabled={newBaddie}
                 setCurrentBaddieForPreview={true}
               />
-              <BaseLabel>URL</BaseLabel>
+              {/* <BaseLabel>URL</BaseLabel>
               <BaseInput
                 value={newUrl}
                 onChange={(e) => dispatch(setNewUrl(e.target.value))}
-              />
+              /> */}
               {mediaType === "videos" && (
                 <>
                   <BaseLabel>Volume</BaseLabel>

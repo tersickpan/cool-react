@@ -108,11 +108,11 @@ export default function EditExist() {
                 disabled={!selectedBaseKey}
                 handleSelectedEntryKey={handleSelectedEntryKey}
               />
-              <BaseLabel>URL</BaseLabel>
+              {/* <BaseLabel>URL</BaseLabel>
               <BaseInput
                 value={currentUrl}
                 onChange={(e) => dispatch(setCurrentUrl(e.target.value))}
-              />
+              /> */}
               {mediaType === "videos" && (
                 <>
                   <BaseLabel>Volume</BaseLabel>
