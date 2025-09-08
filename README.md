@@ -12,6 +12,7 @@ Currently, two official plugins are available:
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
 ## To Do List
-- Make the entry default to 01 when select a base
-- Merge lastUpdate
-- Migrate viewing,wallpapers
+- [ ] Use Cloudinary SDK to upload and delete image
+- [ ] Add Supabase for add/delete single
+- [ ] Finish feature/add-delete branch
+- [ ] Figure how to do bulk upload
