@@ -16,7 +16,7 @@ export default async function uploadNewFile(file, fileType, baseKey, entryKey) {
   const folder = `baddies/${baseKey}`;
 
   try {
-    const { signature, timestamp } = await getUploadSign({ folder, entryKey });
+    const { signature, timestamp } = await getUploadSign({ folder });
     const formData = new FormData();
 
     formData.append("file", file);
