@@ -12,7 +12,7 @@ export default function BaseImagePreview({
 
   const imageClass = wallpaper
     ? "w-full h-full object-cover"
-    : "rounded-2xl shadow-xl object-contain max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg max-h-80 sm:max-h-96 md:max-h-[32rem]";
+    : "rounded-2xl shadow-xl object-contain max-w-full max-h-full";
 
   return (
     <div className={`${containerClass} ${className}`}>

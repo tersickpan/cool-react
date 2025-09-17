@@ -17,7 +17,7 @@ export default function BaseVideoPreview({
 
   const videoClass = wallpaper
     ? "w-full h-full object-contain"
-    : "w-full rounded-2xl shadow-xl max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg max-h-80 sm:max-h-96 md:max-h-[32rem]";
+    : "w-full rounded-2xl shadow-xl max-w-full max-h-full";
 
   useEffect(() => {
     if (videoRef.current) {
