@@ -23,7 +23,11 @@ export default function BaseKeyDropdown({
     dispatch(setSelectedBaseKey(value));
 
     if (setCurrentBaddieForPreview) {
-      dispatch(setCurrentBaddie(getRandomEntry(mediaJson[mediaType], value)));
+      if (value) {
+        dispatch(setCurrentBaddie(getRandomEntry(mediaJson[mediaType], value)));
+      } else {
+        dispatch(setCurrentBaddie(null));
+      }
     }
 
     if (value) {
