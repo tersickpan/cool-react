@@ -1,7 +1,8 @@
-export default async function getUploadSign({ folder }) {
+export default async function getUploadSign({ folder, entryKey }) {
   try {
     const params = new URLSearchParams({
       folder,
+      entryKey,
     });
 
     const url = `https://cool-express.vercel.app/api/signuploadform?${params.toString()}`;

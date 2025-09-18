@@ -33,16 +33,17 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
     const folder = `baddies/${baseKey}`;
 
     // 🔹 Ask backend once for batch signature
-    const { signature, timestamp } = await getUploadSign({ folder });
+    //const { signature, timestamp } = await getUploadSign({ folder });
 
     // 🔹 Upload all files in parallel
     const uploads = Array.from(files).map((file, idx) => {
+      const { signature, timestamp } = getUploadSign({ folder, entryKey });
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
       formData.append("timestamp", timestamp);
       formData.append("signature", signature);
-      //formData.append("public_id", entryKey);
+      formData.append("public_id", entryKey);
       formData.append("display_name", entryKey);
       formData.append("asset_folder", folder);
       formData.append("resource_type", resourceType);
