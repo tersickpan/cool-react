@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedBaseKey, setEntryKeys } from "../store/mediaEditorSlice";
-import { setNewUrl, setNewVolume } from "../store/mediaPreviewSlice.js";
+import { setNewVolume } from "../store/mediaPreviewSlice.js";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -9,11 +9,9 @@ import SectionCard from "./base/SectionCard";
 import BaseKeyDropdown from "./BaseKeyDropdown";
 import MediaDropdown from "./MediaDropdown";
 import BaseButton from "./base/BaseButton";
-import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
-import BaseFileUploader from "./base/BaseFileUploader";
-import uploadNewFile from "../utils/uploadNewFile.js";
+import MultiMediaUploader from "./MultiMediaUploader.jsx";
 
 export default function AddNew() {
   const dispatch = useDispatch();
@@ -25,11 +23,11 @@ export default function AddNew() {
   const currentBaddie = useSelector(
     (state) => state.mediaPreview.currentBaddie
   );
-  const newUrl = useSelector((state) => state.mediaPreview.newUrl);
   const newVolume = useSelector((state) => state.mediaPreview.newVolume);
 
+  const uploaderRef = useRef(null);
   const [newBaddie, setNewBaddie] = useState("");
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [previewFiles, setPreviewFiles] = useState([]);
 
   const handleNewBaddie = (value) => {
     setNewBaddie(value);
@@ -40,28 +38,14 @@ export default function AddNew() {
     }
   };
 
-  const onNewFileSelected = (file) => {
-    if (!file) {
-      setUploadedFile(null);
-      dispatch(setNewUrl(""));
-      return;
-    }
-    setUploadedFile(file);
-    dispatch(setNewUrl(URL.createObjectURL(file)));
-  };
-
   const handleAdd = () => {
-    if ((!newBaddie && !selectedBaseKey) || !newUrl) {
+    if (!newBaddie && !selectedBaseKey) {
       alert("Missing fields bruh");
       return;
     }
 
-    if (uploadedFile !== null) {
-      // If a file is uploaded, do some error checking and upload to cloud
-    }
-
-    if (!isValidUrl(newUrl)) {
-      alert("Invalid URL!");
+    if (!previewFiles || previewFiles.length === 0) {
+      alert("No files to upload");
       return;
     }
 
@@ -69,28 +53,13 @@ export default function AddNew() {
       ? `${newBaddie}-01`
       : `${selectedBaseKey}-${String(entryKeys.length + 1).padStart(2, "0")}`;
 
-    console.log({
-      baseKey: key,
-      url: newUrl,
-      ...(mediaType === "videos" && { volume: newVolume }),
-      timestamp: new Date().toISOString(),
-    });
-  };
-
-  async function apiTest() {
-    try {
-      const uploadMedia = await uploadNewFile(
-        uploadedFile,
-        mediaType,
-        "temp",
-        "testing"
-      );
-      console.log("Upload successful:", uploadMedia);
-      // You can use the data here (e.g., set state, show UI, etc.)
-    } catch (error) {
-      console.error("Upload failed:", error);
+    if (uploaderRef.current) {
+      uploaderRef.current.handleUpload({
+        baseKey: newBaddie ? newBaddie : selectedBaseKey,
+        entryKey: key,
+      });
     }
-  }
+  };
 
   return (
     <>
@@ -99,25 +68,12 @@ export default function AddNew() {
         <>
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
-              <BaseFileUploader
-                onFileSelect={onNewFileSelected}
-                vidVolume={newVolume}
+              <MultiMediaUploader
+                ref={uploaderRef}
                 mediaType={mediaType}
+                files={previewFiles}
+                setFiles={setPreviewFiles}
               />
-              <BaseLabel>New Baddie🤤</BaseLabel>
-              <BaseInput
-                value={newBaddie}
-                onChange={(e) => handleNewBaddie(e.target.value)}
-              />
-              <BaseKeyDropdown
-                disabled={newBaddie}
-                setCurrentBaddieForPreview={true}
-              />
-              {/* <BaseLabel>URL</BaseLabel>
-              <BaseInput
-                value={newUrl}
-                onChange={(e) => dispatch(setNewUrl(e.target.value))}
-              /> */}
               {mediaType === "videos" && (
                 <>
                   <BaseLabel>Volume</BaseLabel>
@@ -132,33 +88,47 @@ export default function AddNew() {
                 </>
               )}
             </SectionCard>
-            <SectionCard className="col-span-2">
-              <div className="grid md:grid-cols-2 gap-6">
-                {mediaType === "pictures" && (
-                  <>
-                    <BaseImagePreview src={currentBaddie.url} />
-                    {newUrl && <BaseImagePreview src={newUrl} />}
-                  </>
-                )}
-                {mediaType === "videos" && (
-                  <>
-                    <BaseVideoPreview
-                      src={currentBaddie.url}
-                      volume={currentBaddie.volume}
-                    />
-                    {newUrl && (
+            {previewFiles && (
+              <SectionCard className="col-span-1 gap-2">
+                <BaseLabel>New Baddie🤤</BaseLabel>
+                <BaseInput
+                  value={newBaddie}
+                  onChange={(e) => handleNewBaddie(e.target.value)}
+                />
+                {mediaType === "pictures"
+                  ? Array.from(previewFiles).map((file) => (
+                      <BaseImagePreview
+                        key={file.name}
+                        src={URL.createObjectURL(file)}
+                      />
+                    ))
+                  : Array.from(previewFiles).map((file) => (
                       <BaseVideoPreview
-                        src={newUrl}
+                        key={file.name}
+                        src={URL.createObjectURL(file)}
                         volume={newVolume}
                       />
-                    )}
-                  </>
+                    ))}
+              </SectionCard>
+            )}
+            {currentBaddie && (
+              <SectionCard className="col-span-auto gap-2">
+                <BaseKeyDropdown
+                  disabled={newBaddie}
+                  setCurrentBaddieForPreview={true}
+                />
+                {mediaType === "pictures" ? (
+                  <BaseImagePreview src={currentBaddie?.url} />
+                ) : (
+                  <BaseVideoPreview
+                    src={currentBaddie.url}
+                    volume={currentBaddie.volume}
+                  />
                 )}
-              </div>
-            </SectionCard>
+              </SectionCard>
+            )}
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
-          <BaseButton onClick={apiTest}>Testing</BaseButton>
         </>
       )}
     </>
