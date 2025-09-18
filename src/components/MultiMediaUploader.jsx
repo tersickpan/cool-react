@@ -32,12 +32,13 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
     const resourceType = files[0].type.startsWith("video") ? "video" : "image";
     const folder = `baddies/${baseKey}`;
 
-    // 🔹 Ask backend once for batch signature
-    //const { signature, timestamp } = await getUploadSign({ folder });
-
     // 🔹 Upload all files in parallel
-    const uploads = Array.from(files).map((file, idx) => {
-      const { signature, timestamp } = getUploadSign({ folder, entryKey });
+    const uploads = Array.from(files).map(async (file, idx) => {
+      // 🔹 Ask backend signature
+      const { signature, timestamp } = await getUploadSign({
+        folder,
+        entryKey,
+      });
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
