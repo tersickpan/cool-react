@@ -1,5 +1,4 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
-import axios from "axios";
 
 import getUploadSign from "../utils/getUploadSign";
 
@@ -36,7 +35,7 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
     const { signature, timestamp } = await getUploadSign({ folder });
 
     // 🔹 Upload all files in parallel
-    const uploads = Array.from(files).map((file, idx) => {
+    const uploads = Array.from(files).map((file) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
@@ -49,20 +48,19 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
       formData.append("use_asset_folder_as_public_id_prefix", true);
 
       // Let Cloudinary handle public_id automatically
-      return axios
-        .post(
-          `https://api.cloudinary.com/v1_1/${
-            import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-          }/auto/upload`,
-          formData,
-          {
-            onUploadProgress: (evt) => {
-              const percent = Math.round((evt.loaded * 100) / evt.total);
-              setProgress((prev) => ({ ...prev, [idx]: percent }));
-            },
-          }
-        )
-        .then((res) => res.data);
+      return fetch(
+        `https://api.cloudinary.com/v1_1/${
+          import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+        }/auto/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      ).then(async (res) => {
+        if (!res.ok) throw new Error("Upload failed");
+        // Progress events are not available with fetch natively
+        return await res.json();
+      });
     });
 
     await Promise.all(uploads);
