@@ -42,11 +42,10 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
       formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
       formData.append("timestamp", timestamp);
       formData.append("signature", signature);
-      formData.append("public_id", entryKey);
+      //formData.append("public_id", entryKey);
       formData.append("display_name", entryKey);
       formData.append("asset_folder", folder);
       formData.append("resource_type", resourceType);
-      formData.append("use_asset_folder_as_public_id_prefix", true);
 
       // Let Cloudinary handle public_id automatically
       return axios
