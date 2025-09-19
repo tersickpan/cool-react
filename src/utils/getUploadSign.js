@@ -5,7 +5,7 @@ export default async function getUploadSign({ folder, entryKey }) {
       entryKey,
     });
 
-    const url = `https://cool-express.vercel.app/api/signuploadform?${params.toString()}`;
+    const url = `${import.meta.env.VITE_CLOUDINARY_API_URL}/signuploadform?${params.toString()}`;
 
     const response = await fetch(url);
     if (!response.ok) {
