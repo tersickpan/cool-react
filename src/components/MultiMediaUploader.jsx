@@ -1,6 +1,7 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import axios from "axios";
 
+import EmojiSpinner from "./base/EmojiSpinner";
 import getUploadSign from "../utils/getUploadSign";
 import { insertSingleMediaUpload } from "../utils/supabase";
 
@@ -61,7 +62,11 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
           {
             onUploadProgress: (evt) => {
               const percent = Math.round((evt.loaded * 100) / evt.total);
-              setProgress((prev) => ({ ...prev, [idx]: percent }));
+              // Map Cloudinary progress to 0-50%
+              setProgress((prev) => ({
+                ...prev,
+                [idx]: Math.round(percent * 0.5),
+              }));
             },
           }
         );
@@ -74,6 +79,12 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
       const { public_id, secure_url } = cloudinaryRes.data;
 
       // Insert to Supabase
+      // Set progress to 75% before DB insert
+      setProgress((prev) => ({
+        ...prev,
+        [idx]: 75,
+      }));
+
       await insertSingleMediaUpload({
         mediaType,
         base_key: baseKey,
@@ -82,6 +93,12 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
         timestamp: new Date(timestamp * 1000).toISOString(),
         volume: resourceType === "video" ? file.volume : undefined,
       });
+
+      // Set progress to 100% after DB insert
+      setProgress((prev) => ({
+        ...prev,
+        [idx]: 100,
+      }));
 
       return cloudinaryRes.data;
     });
@@ -95,6 +112,12 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
 
   return (
     <div className="p-4">
+      {/* Spinner overlay during upload */}
+      <EmojiSpinner
+        visible={avgProgress > 0 && avgProgress < 100}
+        progress={avgProgress}
+      />
+
       <div
         className="relative border-2 border-dashed border-pink-500 p-6 rounded-2xl text-center text-white cursor-pointer hover:border-pink-400 transition-all bg-zinc-900 max-w-md mx-auto"
         onClick={() => fileInputRef.current.click()}
@@ -136,30 +159,6 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
             setProgress({});
           }}
         />
-      </div>
-
-      {/* Progress bars */}
-      <div className="mt-4">
-        {totalFiles > 0 && (
-          <div>
-            <div className="text-sm text-white mb-1">
-              {avgProgress === 100
-                ? "Upload Complete"
-                : `Uploading ${totalFiles} files...`}
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2.5">
-              <div
-                className={`h-2.5 rounded-full transition-all duration-200 ${
-                  avgProgress === 100 ? "bg-green-500" : "bg-pink-500"
-                }`}
-                style={{ width: `${avgProgress}%` }}
-              />
-            </div>
-            <div className="text-xs text-gray-300 mt-1">
-              {avgProgress ? `${avgProgress}%` : "Waiting..."}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
