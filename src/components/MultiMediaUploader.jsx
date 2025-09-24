@@ -2,6 +2,7 @@ import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import axios from "axios";
 
 import getUploadSign from "../utils/getUploadSign";
+import { insertSingleMediaUpload } from "../utils/supabase";
 
 const MultiMediaUploader = forwardRef(function MultiMediaUploader(
   {
@@ -49,9 +50,10 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
       formData.append("asset_folder", folder);
       formData.append("resource_type", resourceType);
 
-      // Let Cloudinary handle public_id automatically
-      return axios
-        .post(
+      // Upload to Cloudinary
+      let cloudinaryRes;
+      try {
+        cloudinaryRes = await axios.post(
           `https://api.cloudinary.com/v1_1/${
             import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
           }/auto/upload`,
@@ -62,8 +64,26 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
               setProgress((prev) => ({ ...prev, [idx]: percent }));
             },
           }
-        )
-        .then((res) => res.data);
+        );
+      } catch (err) {
+        throw new Error(
+          `Cloudinary upload failed for ${file.name}: ${err.message}`
+        );
+      }
+
+      const { public_id, secure_url } = cloudinaryRes.data;
+
+      // Insert to Supabase
+      await insertSingleMediaUpload({
+        mediaType,
+        base_key: baseKey,
+        public_id,
+        url: secure_url,
+        timestamp: new Date(timestamp * 1000).toISOString(),
+        volume: resourceType === "video" ? file.volume : undefined,
+      });
+
+      return cloudinaryRes.data;
     });
 
     await Promise.all(uploads);
