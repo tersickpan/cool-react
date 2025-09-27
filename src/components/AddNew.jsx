@@ -49,14 +49,10 @@ export default function AddNew() {
       return;
     }
 
-    const key = newBaddie
-      ? `${newBaddie}-01`
-      : `${selectedBaseKey}-${String(entryKeys.length + 1).padStart(2, "0")}`;
-
     if (uploaderRef.current) {
       uploaderRef.current.handleUpload({
         baseKey: newBaddie ? newBaddie : selectedBaseKey,
-        entryKey: key,
+        lastEntryIndex: newBaddie ? 1 : entryKeys.length + 1,
       });
     }
   };

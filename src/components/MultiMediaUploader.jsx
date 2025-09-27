@@ -28,32 +28,37 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
     setProgress({});
   };
 
-  const handleUpload = async ({ baseKey, entryKey }) => {
+  const handleUpload = async ({ baseKey, lastEntryIndex }) => {
     if (!files.length) return;
 
     const resourceType = files[0].type.startsWith("video") ? "video" : "image";
     const folder = `baddies/${baseKey}`;
 
-    // 🔹 Upload all files in parallel
-    const uploads = Array.from(files).map(async (file, idx) => {
-      // 🔹 Ask backend signature
-      const { signature, timestamp } = await getUploadSign({
-        folder,
-        entryKey,
-      });
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
-      formData.append("timestamp", timestamp);
-      formData.append("signature", signature);
-      formData.append("public_id", entryKey);
-      formData.append("display_name", entryKey);
-      formData.append("asset_folder", folder);
-      formData.append("resource_type", resourceType);
+    try {
+      for (let idx = 0; idx < files.length; idx++) {
+        const file = files[idx];
+        const entryKey = `${baseKey}-${String(lastEntryIndex + idx).padStart(
+          2,
+          "0"
+        )}`;
 
-      // Upload to Cloudinary
-      let cloudinaryRes;
-      try {
+        // 🔹 Ask backend signature
+        const { signature, timestamp } = await getUploadSign({
+          folder,
+          entryKey,
+        });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
+        formData.append("timestamp", timestamp);
+        formData.append("signature", signature);
+        formData.append("public_id", entryKey);
+        formData.append("display_name", entryKey);
+        formData.append("asset_folder", folder);
+        formData.append("resource_type", resourceType);
+
+        // Upload to Cloudinary
+        let cloudinaryRes;
         cloudinaryRes = await axios.post(
           `https://api.cloudinary.com/v1_1/${
             import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
@@ -70,40 +75,38 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
             },
           }
         );
-      } catch (err) {
-        throw new Error(
-          `Cloudinary upload failed for ${file.name}: ${err.message}`
-        );
+
+        const { public_id, secure_url } = cloudinaryRes.data;
+
+        // Insert to Supabase
+        setProgress((prev) => ({
+          ...prev,
+          [idx]: 75,
+        }));
+
+        await insertSingleMediaUpload({
+          mediaType,
+          base_key: baseKey,
+          public_id,
+          url: secure_url,
+          timestamp: new Date(timestamp * 1000).toISOString(),
+          volume: resourceType === "video" ? file.volume : undefined,
+        });
+
+        setProgress((prev) => ({
+          ...prev,
+          [idx]: 100,
+        }));
       }
-
-      const { public_id, secure_url } = cloudinaryRes.data;
-
-      // Insert to Supabase
-      // Set progress to 75% before DB insert
+    } catch (err) {
+      // Cancel the rest of the transfer
       setProgress((prev) => ({
         ...prev,
-        [idx]: 75,
+        error: `Upload failed: ${err.message}`,
       }));
-
-      await insertSingleMediaUpload({
-        mediaType,
-        base_key: baseKey,
-        public_id,
-        url: secure_url,
-        timestamp: new Date(timestamp * 1000).toISOString(),
-        volume: resourceType === "video" ? file.volume : undefined,
-      });
-
-      // Set progress to 100% after DB insert
-      setProgress((prev) => ({
-        ...prev,
-        [idx]: 100,
-      }));
-
-      return cloudinaryRes.data;
-    });
-
-    await Promise.all(uploads);
+      // Optionally, you can break or return here
+      return;
+    }
   };
 
   useImperativeHandle(ref, () => ({
