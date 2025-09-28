@@ -31,7 +31,7 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
   const handleUpload = async ({ baseKey, lastEntryIndex }) => {
     if (!files.length) return;
 
-    const resourceType = files[0].type.startsWith("video") ? "video" : "image";
+    const resourceType = mediaType === "videos" ? "video" : "image";
     const folder = `baddies/${baseKey}`;
 
     try {
@@ -41,6 +41,7 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
           2,
           "0"
         )}`;
+        const volume = file.volume || 0.07; // Default volume for videos
 
         // 🔹 Ask backend signature
         const { signature, timestamp } = await getUploadSign({
@@ -90,7 +91,7 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
           public_id,
           url: secure_url,
           timestamp: new Date(timestamp * 1000).toISOString(),
-          volume: resourceType === "video" ? file.volume : undefined,
+          volume: resourceType === "video" ? volume : undefined,
         });
 
         setProgress((prev) => ({

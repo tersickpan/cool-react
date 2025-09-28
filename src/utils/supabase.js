@@ -34,4 +34,17 @@ export async function insertSingleMediaUpload({
   return data;
 }
 
+export async function fetchAllMedia(mediaType) {
+  const { data, error } = await supabase
+    .from(mediaType)
+    .select("*")
+    .order("timestamp", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching media:", error);
+    throw error;
+  }
+  return data;
+}
+
 export default supabase;
