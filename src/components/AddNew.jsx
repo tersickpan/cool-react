@@ -1,7 +1,5 @@
 import { useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedBaseKey, setEntryKeys } from "../store/mediaEditorSlice";
-import { setNewVolume } from "../store/mediaPreviewSlice.js";
+import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -14,27 +12,25 @@ import BaseVideoPreview from "./base/BaseVideoPreview";
 import MultiMediaUploader from "./MultiMediaUploader.jsx";
 
 export default function AddNew() {
-  const dispatch = useDispatch();
   const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const selectedBaseKey = useSelector(
-    (state) => state.mediaEditor.selectedBaseKey
-  );
-  const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
   const currentBaddie = useSelector(
     (state) => state.mediaPreview.currentBaddie
   );
-  const newVolume = useSelector((state) => state.mediaPreview.newVolume);
 
   const uploaderRef = useRef(null);
   const [newBaddie, setNewBaddie] = useState("");
   const [previewFiles, setPreviewFiles] = useState([]);
+  const [baseKeys, setBaseKeys] = useState([]);
+  const [entryKeys, setEntryKeys] = useState([]);
+  const [selectedBaseKey, setSelectedBaseKey] = useState("");
+  const [newVolume, setNewVolume] = useState(0.07);
 
   const handleNewBaddie = (value) => {
     setNewBaddie(value);
 
     if (value.trim() !== "" && selectedBaseKey !== "") {
-      dispatch(setSelectedBaseKey(""));
-      dispatch(setEntryKeys([]));
+      setSelectedBaseKey("");
+      setEntryKeys([]);
     }
   };
 
@@ -59,7 +55,10 @@ export default function AddNew() {
 
   return (
     <>
-      <MediaDropdown />
+      <MediaDropdown
+        setBaseKeys={setBaseKeys}
+        setSelectedBaseKey={setSelectedBaseKey}
+      />
       {mediaType && (
         <>
           <div className="grid md:grid-cols-3 gap-6">
@@ -76,7 +75,7 @@ export default function AddNew() {
                   <BaseInput
                     type="number"
                     value={newVolume}
-                    onChange={(e) => dispatch(setNewVolume(e.target.value))}
+                    onChange={(e) => setNewVolume(e.target.value)}
                     min={0}
                     max={1}
                     step={0.01}
@@ -112,6 +111,11 @@ export default function AddNew() {
                 <BaseKeyDropdown
                   disabled={newBaddie}
                   setCurrentBaddieForPreview={true}
+                  baseKeys={baseKeys}
+                  setBaseKeys={setBaseKeys}
+                  selectedBaseKey={selectedBaseKey}
+                  setSelectedBaseKey={setSelectedBaseKey}
+                  setEntryKeys={setEntryKeys}
                 />
                 {mediaType === "pictures" ? (
                   <BaseImagePreview src={currentBaddie?.url} />

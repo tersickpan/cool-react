@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedEntryKey } from "../store/mediaEditorSlice";
-import { setCurrentUrl, setCurrentVolume } from "../store/mediaPreviewSlice.js";
-import { refreshMediaJson } from "../store/refreshMediaJson.js";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -15,32 +12,25 @@ import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import BaseModal from "./base/BaseModal.jsx";
+import {
+  fetchSingleEntry,
+  updateSingleEntryVolume,
+} from "../utils/supabase.js";
+import deleteSingleMedia from "../utils/deleteSingleMedia.js";
 
 export default function EditExist() {
-  const dispatch = useDispatch();
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const selectedBaseKey = useSelector(
-    (state) => state.mediaEditor.selectedBaseKey
-  );
-  const selectedEntryKey = useSelector(
-    (state) => state.mediaEditor.selectedEntryKey
-  );
-  const currentUrl = useSelector((state) => state.mediaPreview.currentUrl);
-  const currentVolume = useSelector(
-    (state) => state.mediaPreview.currentVolume
-  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [baseKeys, setBaseKeys] = useState([]);
+  const [entryKeys, setEntryKeys] = useState([]);
+  const [selectedBaseKey, setSelectedBaseKey] = useState("");
+  const [selectedEntryKey, setSelectedEntryKey] = useState("");
+  const [currentUrl, setCurrentUrl] = useState("");
+  const [currentVolume, setCurrentVolume] = useState(0);
 
   const handleSelectedEntryKey = ({ value }) => {
-    if (!value) return;
-
-    dispatch(setSelectedEntryKey(value));
-    const baddie = mediaJson[mediaType][value];
-
-    dispatch(setCurrentUrl(baddie.url));
-    if (baddie.volume) dispatch(setCurrentVolume(baddie.volume));
+    setSelectedEntryKey(value);
   };
 
   const handleEdit = () => {
@@ -54,12 +44,14 @@ export default function EditExist() {
       return;
     }
 
-    console.log({
-      baseKey: selectedEntryKey,
-      url: currentUrl,
-      ...(mediaType === "videos" && { volume: currentVolume }),
-      timestamp: new Date().toISOString(),
-    });
+    // Function: edit volume in Supabase
+    updateSingleEntryVolume(mediaType, selectedEntryKey, currentVolume)
+      .then(() => {
+        alert(`Edited ${selectedEntryKey} successfully!`);
+      })
+      .catch((err) => {
+        alert("Edit failed: " + err.message);
+      });
   };
 
   const handleDelete = () => {
@@ -68,11 +60,26 @@ export default function EditExist() {
       setIsModalOpen(false);
       return;
     }
-    delete mediaJson[mediaType][selectedEntryKey];
-    alert(`Deleted ${selectedEntryKey} successfully!`);
-    dispatch(refreshMediaJson());
+    deleteSingleMedia(mediaType, selectedEntryKey);
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    if (!selectedEntryKey) {
+      setCurrentUrl("");
+      setCurrentVolume(0);
+      return;
+    }
+
+    fetchSingleEntry(mediaType, selectedEntryKey)
+      .then((entry) => {
+        setCurrentUrl(entry.url);
+        if (entry.volume) setCurrentVolume(entry.volume);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch single entry from Supabase", err);
+      });
+  }, [selectedEntryKey]);
 
   return (
     <>
@@ -98,28 +105,34 @@ export default function EditExist() {
           </button>
         </div>
       </BaseModal>
-      <MediaDropdown />
+      <MediaDropdown
+        setBaseKeys={setBaseKeys}
+        setSelectedBaseKey={setSelectedBaseKey}
+        setSelectedEntryKey={setSelectedEntryKey}
+      />
       {mediaType && (
         <>
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
-              <BaseKeyDropdown />
+              <BaseKeyDropdown
+                baseKeys={baseKeys}
+                selectedBaseKey={selectedBaseKey}
+                setSelectedBaseKey={setSelectedBaseKey}
+                setEntryKeys={setEntryKeys}
+              />
               <EntryKeyDropdown
                 disabled={!selectedBaseKey}
                 handleSelectedEntryKey={handleSelectedEntryKey}
+                entryKeys={entryKeys}
+                selectedEntryKey={selectedEntryKey}
               />
-              {/* <BaseLabel>URL</BaseLabel>
-              <BaseInput
-                value={currentUrl}
-                onChange={(e) => dispatch(setCurrentUrl(e.target.value))}
-              /> */}
               {mediaType === "videos" && (
                 <>
                   <BaseLabel>Volume</BaseLabel>
                   <BaseInput
                     type="number"
                     value={currentVolume}
-                    onChange={(e) => dispatch(setCurrentVolume(e.target.value))}
+                    onChange={(e) => setCurrentVolume(e.target.value)}
                     min={0}
                     max={1}
                     step={0.01}

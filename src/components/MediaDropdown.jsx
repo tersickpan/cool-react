@@ -1,20 +1,20 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setMediaType } from "../store/mediaDataSlice";
-import {
-  setSortMode,
-  setBaseKeys,
-  setSelectedBaseKey,
-  setSelectedEntryKey,
-} from "../store/mediaEditorSlice";
+import { setSortMode } from "../store/mediaEditorSlice";
 import { setAllPreviewCleared } from "../store/mediaPreviewSlice";
 
 import SectionCard from "./base/SectionCard";
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
+import { fetchBaseKeys } from "../utils/supabase";
+import { useEffect } from "react";
 
-export default function MediaDropdown() {
+export default function MediaDropdown({
+  setBaseKeys = () => {},
+  setSelectedBaseKey = () => {},
+  setSelectedEntryKey = () => {},
+}) {
   const dispatch = useDispatch();
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
 
   const mediaOptions = [
@@ -23,18 +23,25 @@ export default function MediaDropdown() {
   ];
 
   const handleChange = ({ value }) => {
-    if (value) {
-      const keys = Object.keys(mediaJson[value]);
-      const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
-      dispatch(setBaseKeys(allKeysByBase));
-    }
-
-    dispatch(setAllPreviewCleared());
-    dispatch(setSelectedEntryKey(""));
-    dispatch(setSelectedBaseKey(""));
-    dispatch(setSortMode("default"));
     dispatch(setMediaType(value));
+    dispatch(setAllPreviewCleared());
+    setSelectedEntryKey("");
+    setSelectedBaseKey("");
+    dispatch(setSortMode("default"));
   };
+
+  useEffect(() => {
+    if (!mediaType) return;
+
+    fetchBaseKeys(mediaType)
+      .then((keys) => {
+        const options = [...new Set(keys.map((key) => key.base_key))];
+        setBaseKeys(options);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch base keys from Supabase", err);
+      });
+  }, [mediaType]);
 
   return (
     <SectionCard>
