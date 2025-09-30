@@ -24,11 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           />
           <Route
             path="/editor"
-            element={
-              <RequireJsonLoader>
-                <Editor />
-              </RequireJsonLoader>
-            }
+            element={<Editor />}
           />
           <Route
             path="/xviewx"

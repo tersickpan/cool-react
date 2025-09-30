@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedBaseKey } from "../store/mediaEditorSlice";
+import { useState, useRef } from "react";
+import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -8,69 +7,67 @@ import SectionCard from "./base/SectionCard";
 import BaseKeyDropdown from "./BaseKeyDropdown";
 import MediaDropdown from "./MediaDropdown";
 import BaseButton from "./base/BaseButton";
-import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
+import MultiMediaUploader from "./MultiMediaUploader.jsx";
 
 export default function AddNew() {
-  const dispatch = useDispatch();
   const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const selectedBaseKey = useSelector(
-    (state) => state.mediaEditor.selectedBaseKey
+  const currentBaddie = useSelector(
+    (state) => state.mediaPreview.currentBaddie
   );
 
-  const [currentBaddie, setCurrentBaddie] = useState({});
+  const uploaderRef = useRef(null);
   const [newBaddie, setNewBaddie] = useState("");
-  const [newUrl, setNewUrl] = useState("");
+  const [previewFiles, setPreviewFiles] = useState([]);
+  const [baseKeys, setBaseKeys] = useState([]);
+  const [entryKeys, setEntryKeys] = useState([]);
+  const [selectedBaseKey, setSelectedBaseKey] = useState("");
   const [newVolume, setNewVolume] = useState(0.07);
 
   const handleNewBaddie = (value) => {
     setNewBaddie(value);
 
-    if (value.trim() !== "") {
-      dispatch(setSelectedBaseKey(""));
+    if (value.trim() !== "" && selectedBaseKey !== "") {
+      setSelectedBaseKey("");
+      setEntryKeys([]);
     }
   };
 
   const handleAdd = () => {
-    if ((!newBaddie && !selectedBaseKey) || !newUrl) {
+    if (!newBaddie && !selectedBaseKey) {
       alert("Missing fields bruh");
       return;
     }
 
-    if (!isValidUrl(newUrl)) {
-      alert("Invalid URL!");
+    if (!previewFiles || previewFiles.length === 0) {
+      alert("No files to upload");
       return;
     }
 
-    console.log({
-      baseKey: newBaddie ? newBaddie : selectedBaseKey,
-      url: newUrl,
-      ...(mediaType === "videos" && { volume: newVolume }),
-      timestamp: new Date().toISOString(),
-    });
+    if (uploaderRef.current) {
+      uploaderRef.current.handleUpload({
+        baseKey: newBaddie ? newBaddie : selectedBaseKey,
+        lastEntryIndex: newBaddie ? 1 : entryKeys.length + 1,
+      });
+    }
   };
 
   return (
     <>
-      <MediaDropdown />
+      <MediaDropdown
+        setBaseKeys={setBaseKeys}
+        setSelectedBaseKey={setSelectedBaseKey}
+      />
       {mediaType && (
         <>
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
-              <BaseLabel>New Baddie🤤</BaseLabel>
-              <BaseInput
-                value={newBaddie}
-                onChange={(e) => handleNewBaddie(e.target.value)}
-              />
-              <BaseKeyDropdown
-                disabled={newBaddie}
-                setCurrentBaddieForPreview={setCurrentBaddie}
-              />
-              <BaseLabel>URL</BaseLabel>
-              <BaseInput
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
+              <MultiMediaUploader
+                ref={uploaderRef}
+                mediaType={mediaType}
+                files={previewFiles}
+                setFiles={setPreviewFiles}
               />
               {mediaType === "videos" && (
                 <>
@@ -86,32 +83,50 @@ export default function AddNew() {
                 </>
               )}
             </SectionCard>
-            <SectionCard className="col-span-2">
-              <div className="grid md:grid-cols-2 gap-6">
-                {mediaType === "pictures" && (
-                  <>
-                    <BaseImagePreview src={currentBaddie.url} />
-                    {newBaddie && <BaseImagePreview src={newUrl} />}
-                  </>
-                )}
-                {mediaType === "videos" && (
-                  <>
-                    <BaseVideoPreview
-                      src={currentBaddie.url}
-                      volume={
-                        currentBaddie.volume
-                      }
-                    />
-                    {newBaddie && (
+            {previewFiles && (
+              <SectionCard className="col-span-1 gap-2">
+                <BaseLabel>New Baddie🤤</BaseLabel>
+                <BaseInput
+                  value={newBaddie}
+                  onChange={(e) => handleNewBaddie(e.target.value)}
+                />
+                {mediaType === "pictures"
+                  ? Array.from(previewFiles).map((file) => (
+                      <BaseImagePreview
+                        key={file.name}
+                        src={URL.createObjectURL(file)}
+                      />
+                    ))
+                  : Array.from(previewFiles).map((file) => (
                       <BaseVideoPreview
-                        src={newUrl}
+                        key={file.name}
+                        src={URL.createObjectURL(file)}
                         volume={newVolume}
                       />
-                    )}
-                  </>
+                    ))}
+              </SectionCard>
+            )}
+            {currentBaddie && (
+              <SectionCard className="col-span-auto gap-2">
+                <BaseKeyDropdown
+                  disabled={newBaddie}
+                  setCurrentBaddieForPreview={true}
+                  baseKeys={baseKeys}
+                  setBaseKeys={setBaseKeys}
+                  selectedBaseKey={selectedBaseKey}
+                  setSelectedBaseKey={setSelectedBaseKey}
+                  setEntryKeys={setEntryKeys}
+                />
+                {mediaType === "pictures" ? (
+                  <BaseImagePreview src={currentBaddie?.url} />
+                ) : (
+                  <BaseVideoPreview
+                    src={currentBaddie.url}
+                    volume={currentBaddie.volume}
+                  />
                 )}
-              </div>
-            </SectionCard>
+              </SectionCard>
+            )}
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
         </>

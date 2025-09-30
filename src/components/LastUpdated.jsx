@@ -1,28 +1,43 @@
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import SectionCard from "./base/SectionCard";
-import sortByTimestamp from "../utils/sortByTimestamp";
 import BaseLabel from "./base/BaseLabel";
+import { fetchSingleEntryWithSort } from "../utils/supabase";
 
 function LastUpdated() {
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
-  const sortedMediaJson = sortByTimestamp(mediaJson, "desc");
+  const [latestPic, setLatestPic] = useState({});
+  const [latestVid, setLatestVid] = useState({});
 
-  const picLabel = Object.keys(sortedMediaJson.pictures)[0];
-  const vidLabel = Object.keys(sortedMediaJson.videos)[0];
-  const latestPic = Object.values(sortedMediaJson.pictures)[0];
-  const latestVid = Object.values(sortedMediaJson.videos)[0];
+  useEffect(() => {
+    fetchSingleEntryWithSort("pictures", "latest")
+      .then((entry) => {
+        setLatestPic(entry);
+      })
+      .catch((err) => {
+        console.error(
+          "Failed to fetch latest picture entry from Supabase",
+          err
+        );
+      });
+    fetchSingleEntryWithSort("videos", "latest")
+      .then((entry) => {
+        setLatestVid(entry);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch latest video entry from Supabase", err);
+      });
+  }, []);
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <SectionCard className={"flex flex-col items-center"}>
-        <BaseLabel>{picLabel}</BaseLabel>
+        <BaseLabel>{latestPic.public_id}</BaseLabel>
         <BaseImagePreview src={latestPic.url} />
       </SectionCard>
       <SectionCard className={"flex flex-col items-center"}>
-        <BaseLabel>{vidLabel}</BaseLabel>
+        <BaseLabel>{latestVid.public_id}</BaseLabel>
         <BaseVideoPreview
           src={latestVid.url}
           volume={latestVid?.volume}

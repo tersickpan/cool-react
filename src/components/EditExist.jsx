@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedEntryKey } from "../store/mediaEditorSlice";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -12,29 +11,26 @@ import BaseButton from "./base/BaseButton";
 import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
+import BaseModal from "./base/BaseModal.jsx";
+import {
+  fetchSingleEntry,
+  updateSingleEntryVolume,
+} from "../utils/supabase.js";
+import deleteSingleMedia from "../utils/deleteSingleMedia.js";
 
 export default function EditExist() {
-  const dispatch = useDispatch();
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
   const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const selectedBaseKey = useSelector(
-    (state) => state.mediaEditor.selectedBaseKey
-  );
-  const selectedEntryKey = useSelector(
-    (state) => state.mediaEditor.selectedEntryKey
-  );
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [baseKeys, setBaseKeys] = useState([]);
+  const [entryKeys, setEntryKeys] = useState([]);
+  const [selectedBaseKey, setSelectedBaseKey] = useState("");
+  const [selectedEntryKey, setSelectedEntryKey] = useState("");
   const [currentUrl, setCurrentUrl] = useState("");
-  const [currentVolume, setCurrentVolume] = useState(0.07);
+  const [currentVolume, setCurrentVolume] = useState(0);
 
   const handleSelectedEntryKey = ({ value }) => {
-    if (!value) return;
-
-    dispatch(setSelectedEntryKey(value));
-    const baddie = mediaJson[mediaType][value];
-
-    setCurrentUrl(baddie.url);
-    if (baddie.volume) setCurrentVolume(baddie.volume);
+    setSelectedEntryKey(value);
   };
 
   const handleEdit = () => {
@@ -48,30 +44,87 @@ export default function EditExist() {
       return;
     }
 
-    console.log({
-      baseKey: selectedEntryKey,
-      url: currentUrl,
-      ...(mediaType === "videos" && { volume: currentVolume }),
-      timestamp: new Date().toISOString(),
-    });
+    // Function: edit volume in Supabase
+    updateSingleEntryVolume(mediaType, selectedEntryKey, currentVolume)
+      .then(() => {
+        alert(`Edited ${selectedEntryKey} successfully!`);
+      })
+      .catch((err) => {
+        alert("Edit failed: " + err.message);
+      });
   };
+
+  const handleDelete = () => {
+    if (!selectedBaseKey || !selectedEntryKey || !currentUrl) {
+      alert("Delete failed: Missing fields");
+      setIsModalOpen(false);
+      return;
+    }
+    deleteSingleMedia(mediaType, selectedEntryKey);
+    setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (!selectedEntryKey) {
+      setCurrentUrl("");
+      setCurrentVolume(0);
+      return;
+    }
+
+    fetchSingleEntry(mediaType, selectedEntryKey)
+      .then((entry) => {
+        setCurrentUrl(entry.url);
+        if (entry.volume) setCurrentVolume(entry.volume);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch single entry from Supabase", err);
+      });
+  }, [selectedEntryKey]);
 
   return (
     <>
-      <MediaDropdown />
+      <BaseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      >
+        <p className="text-center">
+          Sure you want to remove {selectedEntryKey || "this"} 😢?
+        </p>
+        <div className="mt-4 flex justify-center gap-4">
+          <button
+            className="bg-pink-500 hover:bg-pink-400 text-white px-4 py-2 rounded-xl"
+            onClick={handleDelete}
+          >
+            Yes
+          </button>
+          <button
+            className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded-xl"
+            onClick={() => setIsModalOpen(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </BaseModal>
+      <MediaDropdown
+        setBaseKeys={setBaseKeys}
+        setSelectedBaseKey={setSelectedBaseKey}
+        setSelectedEntryKey={setSelectedEntryKey}
+      />
       {mediaType && (
         <>
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
-              <BaseKeyDropdown />
+              <BaseKeyDropdown
+                baseKeys={baseKeys}
+                selectedBaseKey={selectedBaseKey}
+                setSelectedBaseKey={setSelectedBaseKey}
+                setEntryKeys={setEntryKeys}
+              />
               <EntryKeyDropdown
                 disabled={!selectedBaseKey}
                 handleSelectedEntryKey={handleSelectedEntryKey}
-              />
-              <BaseLabel>URL</BaseLabel>
-              <BaseInput
-                value={currentUrl}
-                onChange={(e) => setCurrentUrl(e.target.value)}
+                entryKeys={entryKeys}
+                selectedEntryKey={selectedEntryKey}
               />
               {mediaType === "videos" && (
                 <>
@@ -101,7 +154,12 @@ export default function EditExist() {
               </div>
             </SectionCard>
           </div>
-          <BaseButton onClick={handleEdit}>Edit babe</BaseButton>
+          <div className="mt-6 flex justify-start gap-4">
+            <BaseButton onClick={handleEdit}>Edit babe</BaseButton>
+            <BaseButton onClick={() => setIsModalOpen(true)}>
+              Delete Babe
+            </BaseButton>
+          </div>
         </>
       )}
     </>

@@ -13,7 +13,7 @@ export default function BaseDropdown({
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className="bg-zinc-800 border border-pink-400 rounded-xl px-3 py-2 text-white disabled:opacity-40"
+        className="bg-zinc-800 border border-pink-400 rounded-xl px-3 py-2 text-white disabled:opacity-40 mb-3"
       >
         {defaultOpt && (
           <option
