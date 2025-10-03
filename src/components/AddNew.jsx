@@ -14,11 +14,9 @@ import BaseCarousel from "./base/BaseCarousel.jsx";
 
 export default function AddNew() {
   const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const currentBaddie = useSelector(
-    (state) => state.mediaPreview.currentBaddie
-  );
 
   const uploaderRef = useRef(null);
+  const [currentBaddie, setCurrentBaddie] = useState(null);
   const [newBaddie, setNewBaddie] = useState("");
   const [previewFiles, setPreviewFiles] = useState([]);
   const [baseKeys, setBaseKeys] = useState([]);
@@ -54,11 +52,19 @@ export default function AddNew() {
     }
   };
 
+  const handleResetStates = () => {
+    setNewBaddie("");
+    setPreviewFiles([]);
+    setEntryKeys([]);
+    setSelectedBaseKey("");
+    setCurrentBaddie(null);
+  };
+
   return (
     <>
       <MediaDropdown
         setBaseKeys={setBaseKeys}
-        setSelectedBaseKey={setSelectedBaseKey}
+        handleResetStates={handleResetStates}
       />
       {mediaType && (
         <>
@@ -98,27 +104,28 @@ export default function AddNew() {
                 />
               </SectionCard>
             )}
-            {currentBaddie && (
-              <SectionCard className="col-span-auto gap-2">
-                <BaseKeyDropdown
-                  disabled={newBaddie}
-                  setCurrentBaddieForPreview={true}
-                  baseKeys={baseKeys}
-                  setBaseKeys={setBaseKeys}
-                  selectedBaseKey={selectedBaseKey}
-                  setSelectedBaseKey={setSelectedBaseKey}
-                  setEntryKeys={setEntryKeys}
-                />
-                {mediaType === "pictures" ? (
+
+            <SectionCard className="col-span-auto gap-2">
+              <BaseKeyDropdown
+                disabled={newBaddie}
+                setCurrentBaddieForPreview={true}
+                baseKeys={baseKeys}
+                setBaseKeys={setBaseKeys}
+                selectedBaseKey={selectedBaseKey}
+                setSelectedBaseKey={setSelectedBaseKey}
+                setEntryKeys={setEntryKeys}
+                setCurrentBaddie={setCurrentBaddie}
+              />
+              {currentBaddie &&
+                (mediaType === "pictures" ? (
                   <BaseImagePreview src={currentBaddie?.url} />
                 ) : (
                   <BaseVideoPreview
                     src={currentBaddie.url}
                     volume={currentBaddie.volume}
                   />
-                )}
-              </SectionCard>
-            )}
+                ))}
+            </SectionCard>
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
         </>

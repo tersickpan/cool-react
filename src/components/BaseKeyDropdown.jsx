@@ -1,5 +1,4 @@
-import { useSelector, useDispatch } from "react-redux";
-import { setCurrentBaddie } from "../store/mediaPreviewSlice.js";
+import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
@@ -16,8 +15,8 @@ export default function BaseKeyDropdown({
   setEntryKeys = () => {},
   setCurrentUrl = () => {},
   setCurrentVolume = () => {},
+  setCurrentBaddie = () => {},
 }) {
-  const dispatch = useDispatch();
   const mediaType = useSelector((state) => state.mediaData.mediaType);
 
   const handleBaseKeyChange = ({ value }) => {
@@ -35,7 +34,7 @@ export default function BaseKeyDropdown({
     if (setCurrentBaddieForPreview) {
       fetchSingleRandomEntry(mediaType, selectedBaseKey)
         .then((entry) => {
-          dispatch(setCurrentBaddie(entry));
+          setCurrentBaddie(entry);
         })
         .catch((err) => {
           console.error(
@@ -45,7 +44,7 @@ export default function BaseKeyDropdown({
         });
       return;
     } else {
-      dispatch(setCurrentBaddie(null));
+      setCurrentBaddie(null);
     }
 
     fetchEntryKeys(mediaType, selectedBaseKey)

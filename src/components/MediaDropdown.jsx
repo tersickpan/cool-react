@@ -13,6 +13,7 @@ export default function MediaDropdown({
   setBaseKeys = () => {},
   setSelectedBaseKey = () => {},
   setSelectedEntryKey = () => {},
+  handleResetStates = () => {},
 }) {
   const dispatch = useDispatch();
   const mediaType = useSelector((state) => state.mediaData.mediaType);
@@ -27,6 +28,7 @@ export default function MediaDropdown({
     dispatch(setAllPreviewCleared());
     setSelectedEntryKey("");
     setSelectedBaseKey("");
+    handleResetStates();
     dispatch(setSortMode("default"));
   };
 
