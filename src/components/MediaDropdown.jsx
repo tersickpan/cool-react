@@ -1,7 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setMediaType } from "../store/mediaDataSlice";
 import { setSortMode } from "../store/mediaEditorSlice";
-import { setAllPreviewCleared } from "../store/mediaPreviewSlice";
 
 import SectionCard from "./base/SectionCard";
 import BaseLabel from "./base/BaseLabel";
@@ -11,8 +10,6 @@ import { useEffect } from "react";
 
 export default function MediaDropdown({
   setBaseKeys = () => {},
-  setSelectedBaseKey = () => {},
-  setSelectedEntryKey = () => {},
   handleResetStates = () => {},
 }) {
   const dispatch = useDispatch();
@@ -25,9 +22,6 @@ export default function MediaDropdown({
 
   const handleChange = ({ value }) => {
     dispatch(setMediaType(value));
-    dispatch(setAllPreviewCleared());
-    setSelectedEntryKey("");
-    setSelectedBaseKey("");
     handleResetStates();
     dispatch(setSortMode("default"));
   };

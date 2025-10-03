@@ -27,7 +27,7 @@ export default function EditExist() {
   const [selectedBaseKey, setSelectedBaseKey] = useState("");
   const [selectedEntryKey, setSelectedEntryKey] = useState("");
   const [currentUrl, setCurrentUrl] = useState("");
-  const [currentVolume, setCurrentVolume] = useState(0);
+  const [currentVolume, setCurrentVolume] = useState(0.07);
 
   const handleSelectedEntryKey = ({ value }) => {
     setSelectedEntryKey(value);
@@ -62,6 +62,14 @@ export default function EditExist() {
     }
     deleteSingleMedia(mediaType, selectedEntryKey);
     setIsModalOpen(false);
+  };
+
+  const handleResetStates = () => {
+    setEntryKeys([]);
+    setSelectedBaseKey("");
+    setSelectedEntryKey("");
+    setCurrentUrl("");
+    setCurrentVolume(0);
   };
 
   useEffect(() => {
@@ -107,8 +115,7 @@ export default function EditExist() {
       </BaseModal>
       <MediaDropdown
         setBaseKeys={setBaseKeys}
-        setSelectedBaseKey={setSelectedBaseKey}
-        setSelectedEntryKey={setSelectedEntryKey}
+        handleResetStates={handleResetStates}
       />
       {mediaType && (
         <>
