@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
 @layer utilities {
   .animate-spin-slow {
     animation: spin 1s linear infinite;

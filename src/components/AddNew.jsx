@@ -10,6 +10,7 @@ import BaseButton from "./base/BaseButton";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import MultiMediaUploader from "./MultiMediaUploader.jsx";
+import BaseCarousel from "./base/BaseCarousel.jsx";
 
 export default function AddNew() {
   const mediaType = useSelector((state) => state.mediaData.mediaType);
@@ -90,20 +91,11 @@ export default function AddNew() {
                   value={newBaddie}
                   onChange={(e) => handleNewBaddie(e.target.value)}
                 />
-                {mediaType === "pictures"
-                  ? Array.from(previewFiles).map((file) => (
-                      <BaseImagePreview
-                        key={file.name}
-                        src={URL.createObjectURL(file)}
-                      />
-                    ))
-                  : Array.from(previewFiles).map((file) => (
-                      <BaseVideoPreview
-                        key={file.name}
-                        src={URL.createObjectURL(file)}
-                        volume={newVolume}
-                      />
-                    ))}
+                <BaseCarousel
+                  files={previewFiles}
+                  mediaType={mediaType}
+                  vidVolume={newVolume}
+                />
               </SectionCard>
             )}
             {currentBaddie && (
