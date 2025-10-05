@@ -1,5 +1,3 @@
-import { useSelector } from "react-redux";
-
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
 import { fetchEntryKeys, fetchSingleRandomEntry } from "../utils/supabase.js";
@@ -11,14 +9,13 @@ export default function BaseKeyDropdown({
   setCurrentBaddieForPreview = false,
   baseKeys = [],
   selectedBaseKey = "",
+  mediaType = "",
   setSelectedBaseKey = () => {},
   setEntryKeys = () => {},
   setCurrentUrl = () => {},
   setCurrentVolume = () => {},
   setCurrentBaddie = () => {},
 }) {
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-
   const handleBaseKeyChange = ({ value }) => {
     setSelectedBaseKey(value);
     setCurrentUrl("");

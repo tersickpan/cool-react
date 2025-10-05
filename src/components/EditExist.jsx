@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -19,8 +18,7 @@ import {
 import deleteSingleMedia from "../utils/deleteSingleMedia.js";
 
 export default function EditExist() {
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-
+  const [mediaType, setMediaType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [baseKeys, setBaseKeys] = useState([]);
   const [entryKeys, setEntryKeys] = useState([]);
@@ -114,6 +112,8 @@ export default function EditExist() {
         </div>
       </BaseModal>
       <MediaDropdown
+        mediaType={mediaType}
+        setMediaType={setMediaType}
         setBaseKeys={setBaseKeys}
         handleResetStates={handleResetStates}
       />
@@ -122,6 +122,7 @@ export default function EditExist() {
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
               <BaseKeyDropdown
+                mediaType={mediaType}
                 baseKeys={baseKeys}
                 selectedBaseKey={selectedBaseKey}
                 setSelectedBaseKey={setSelectedBaseKey}

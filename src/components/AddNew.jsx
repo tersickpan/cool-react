@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -13,9 +12,8 @@ import MultiMediaUploader from "./MultiMediaUploader.jsx";
 import BaseCarousel from "./base/BaseCarousel.jsx";
 
 export default function AddNew() {
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-
   const uploaderRef = useRef(null);
+  const [mediaType, setMediaType] = useState("");
   const [currentBaddie, setCurrentBaddie] = useState(null);
   const [newBaddie, setNewBaddie] = useState("");
   const [previewFiles, setPreviewFiles] = useState([]);
@@ -63,6 +61,8 @@ export default function AddNew() {
   return (
     <>
       <MediaDropdown
+        mediaType={mediaType}
+        setMediaType={setMediaType}
         setBaseKeys={setBaseKeys}
         handleResetStates={handleResetStates}
       />
@@ -109,6 +109,7 @@ export default function AddNew() {
               <BaseKeyDropdown
                 disabled={newBaddie}
                 setCurrentBaddieForPreview={true}
+                mediaType={mediaType}
                 baseKeys={baseKeys}
                 setBaseKeys={setBaseKeys}
                 selectedBaseKey={selectedBaseKey}
