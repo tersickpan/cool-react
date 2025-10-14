@@ -17,7 +17,7 @@ export default function BaseVideoPreview({
 
   const videoClass = wallpaper
     ? "w-full h-full object-contain"
-    : "w-full rounded-2xl shadow-xl max-w-full max-h-full";
+    : "w-full rounded-2xl shadow-xl max-w-full max-h-full carousel-video";
 
   useEffect(() => {
     if (videoRef.current) {

@@ -1,6 +1,3 @@
-import { useSelector, useDispatch } from "react-redux";
-import { setCurrentMode } from "../store/mediaEditorSlice";
-
 import BaseButton from "./base/BaseButton";
 
 const modes = [
@@ -9,17 +6,14 @@ const modes = [
   { label: "📅 Last Updated", value: "last", icon: "🕒" },
 ];
 
-export default function NavBar() {
-  const dispatch = useDispatch();
-  const currentMode = useSelector((state) => state.mediaEditor.currentMode);
-
+export default function NavBar({ currentMode, setCurrentMode }) {
   return (
     <div className="flex flex-wrap gap-2 mb-6">
       {modes.map((mode) => (
         <BaseButton
           key={mode.value}
           icon={mode.icon}
-          onClick={() => dispatch(setCurrentMode(mode.value))}
+          onClick={() => setCurrentMode(mode.value)}
           className={`font-semibold
             ${
               currentMode === mode.value

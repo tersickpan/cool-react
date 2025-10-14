@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -19,15 +18,14 @@ import {
 import deleteSingleMedia from "../utils/deleteSingleMedia.js";
 
 export default function EditExist() {
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-
+  const [mediaType, setMediaType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [baseKeys, setBaseKeys] = useState([]);
   const [entryKeys, setEntryKeys] = useState([]);
   const [selectedBaseKey, setSelectedBaseKey] = useState("");
   const [selectedEntryKey, setSelectedEntryKey] = useState("");
   const [currentUrl, setCurrentUrl] = useState("");
-  const [currentVolume, setCurrentVolume] = useState(0);
+  const [currentVolume, setCurrentVolume] = useState(0.07);
 
   const handleSelectedEntryKey = ({ value }) => {
     setSelectedEntryKey(value);
@@ -62,6 +60,14 @@ export default function EditExist() {
     }
     deleteSingleMedia(mediaType, selectedEntryKey);
     setIsModalOpen(false);
+  };
+
+  const handleResetStates = () => {
+    setEntryKeys([]);
+    setSelectedBaseKey("");
+    setSelectedEntryKey("");
+    setCurrentUrl("");
+    setCurrentVolume(0);
   };
 
   useEffect(() => {
@@ -106,15 +112,17 @@ export default function EditExist() {
         </div>
       </BaseModal>
       <MediaDropdown
+        mediaType={mediaType}
+        setMediaType={setMediaType}
         setBaseKeys={setBaseKeys}
-        setSelectedBaseKey={setSelectedBaseKey}
-        setSelectedEntryKey={setSelectedEntryKey}
+        handleResetStates={handleResetStates}
       />
       {mediaType && (
         <>
           <div className="grid md:grid-cols-3 gap-6">
             <SectionCard className="col-span-1">
               <BaseKeyDropdown
+                mediaType={mediaType}
                 baseKeys={baseKeys}
                 selectedBaseKey={selectedBaseKey}
                 setSelectedBaseKey={setSelectedBaseKey}

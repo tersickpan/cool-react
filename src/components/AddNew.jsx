@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { useSelector } from "react-redux";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -10,14 +9,12 @@ import BaseButton from "./base/BaseButton";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import MultiMediaUploader from "./MultiMediaUploader.jsx";
+import BaseCarousel from "./base/BaseCarousel.jsx";
 
 export default function AddNew() {
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const currentBaddie = useSelector(
-    (state) => state.mediaPreview.currentBaddie
-  );
-
   const uploaderRef = useRef(null);
+  const [mediaType, setMediaType] = useState("");
+  const [currentBaddie, setCurrentBaddie] = useState(null);
   const [newBaddie, setNewBaddie] = useState("");
   const [previewFiles, setPreviewFiles] = useState([]);
   const [baseKeys, setBaseKeys] = useState([]);
@@ -53,11 +50,21 @@ export default function AddNew() {
     }
   };
 
+  const handleResetStates = () => {
+    setNewBaddie("");
+    setPreviewFiles([]);
+    setEntryKeys([]);
+    setSelectedBaseKey("");
+    setCurrentBaddie(null);
+  };
+
   return (
     <>
       <MediaDropdown
+        mediaType={mediaType}
+        setMediaType={setMediaType}
         setBaseKeys={setBaseKeys}
-        setSelectedBaseKey={setSelectedBaseKey}
+        handleResetStates={handleResetStates}
       />
       {mediaType && (
         <>
@@ -90,43 +97,36 @@ export default function AddNew() {
                   value={newBaddie}
                   onChange={(e) => handleNewBaddie(e.target.value)}
                 />
-                {mediaType === "pictures"
-                  ? Array.from(previewFiles).map((file) => (
-                      <BaseImagePreview
-                        key={file.name}
-                        src={URL.createObjectURL(file)}
-                      />
-                    ))
-                  : Array.from(previewFiles).map((file) => (
-                      <BaseVideoPreview
-                        key={file.name}
-                        src={URL.createObjectURL(file)}
-                        volume={newVolume}
-                      />
-                    ))}
+                <BaseCarousel
+                  files={previewFiles}
+                  mediaType={mediaType}
+                  vidVolume={newVolume}
+                />
               </SectionCard>
             )}
-            {currentBaddie && (
-              <SectionCard className="col-span-auto gap-2">
-                <BaseKeyDropdown
-                  disabled={newBaddie}
-                  setCurrentBaddieForPreview={true}
-                  baseKeys={baseKeys}
-                  setBaseKeys={setBaseKeys}
-                  selectedBaseKey={selectedBaseKey}
-                  setSelectedBaseKey={setSelectedBaseKey}
-                  setEntryKeys={setEntryKeys}
-                />
-                {mediaType === "pictures" ? (
+
+            <SectionCard className="col-span-auto gap-2">
+              <BaseKeyDropdown
+                disabled={newBaddie}
+                setCurrentBaddieForPreview={true}
+                mediaType={mediaType}
+                baseKeys={baseKeys}
+                setBaseKeys={setBaseKeys}
+                selectedBaseKey={selectedBaseKey}
+                setSelectedBaseKey={setSelectedBaseKey}
+                setEntryKeys={setEntryKeys}
+                setCurrentBaddie={setCurrentBaddie}
+              />
+              {currentBaddie &&
+                (mediaType === "pictures" ? (
                   <BaseImagePreview src={currentBaddie?.url} />
                 ) : (
                   <BaseVideoPreview
                     src={currentBaddie.url}
                     volume={currentBaddie.volume}
                   />
-                )}
-              </SectionCard>
-            )}
+                ))}
+            </SectionCard>
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
         </>

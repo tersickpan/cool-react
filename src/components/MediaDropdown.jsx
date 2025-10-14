@@ -1,7 +1,5 @@
-import { useSelector, useDispatch } from "react-redux";
-import { setMediaType } from "../store/mediaDataSlice";
+import { useDispatch } from "react-redux";
 import { setSortMode } from "../store/mediaEditorSlice";
-import { setAllPreviewCleared } from "../store/mediaPreviewSlice";
 
 import SectionCard from "./base/SectionCard";
 import BaseLabel from "./base/BaseLabel";
@@ -10,12 +8,12 @@ import { fetchBaseKeys } from "../utils/supabase";
 import { useEffect } from "react";
 
 export default function MediaDropdown({
+  mediaType = "",
+  setMediaType = () => {},
   setBaseKeys = () => {},
-  setSelectedBaseKey = () => {},
-  setSelectedEntryKey = () => {},
+  handleResetStates = () => {},
 }) {
   const dispatch = useDispatch();
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
 
   const mediaOptions = [
     { label: "📸 Pictures", value: "pictures" },
@@ -23,10 +21,8 @@ export default function MediaDropdown({
   ];
 
   const handleChange = ({ value }) => {
-    dispatch(setMediaType(value));
-    dispatch(setAllPreviewCleared());
-    setSelectedEntryKey("");
-    setSelectedBaseKey("");
+    setMediaType(value);
+    handleResetStates();
     dispatch(setSortMode("default"));
   };
 
