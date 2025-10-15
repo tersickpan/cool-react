@@ -28,11 +28,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           />
           <Route
             path="/xviewx"
-            element={
-              <RequireJsonLoader>
-                <Viewer />
-              </RequireJsonLoader>
-            }
+            element={<Viewer />}
           />
           <Route
             path="/wallpic"
