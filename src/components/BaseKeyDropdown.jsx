@@ -15,6 +15,7 @@ export default function BaseKeyDropdown({
   setCurrentUrl = () => {},
   setCurrentVolume = () => {},
   setCurrentBaddie = () => {},
+  setCurrentBaddieArr = () => {},
 }) {
   const handleBaseKeyChange = ({ value }) => {
     setSelectedBaseKey(value);
@@ -46,6 +47,7 @@ export default function BaseKeyDropdown({
 
     fetchEntryKeys(mediaType, selectedBaseKey)
       .then((keys) => {
+        setCurrentBaddieArr(keys);
         const options = [...new Set(keys.map((key) => key.public_id))];
         setEntryKeys(options);
       })

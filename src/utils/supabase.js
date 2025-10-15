@@ -60,7 +60,7 @@ export async function fetchBaseKeys(mediaType) {
 export async function fetchEntryKeys(mediaType, base_key) {
   const { data, error } = await supabase
     .from(mediaType)
-    .select("public_id")
+    .select("*")
     .eq("base_key", base_key)
     .order("public_id", { ascending: true });
 
