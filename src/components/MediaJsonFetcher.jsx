@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setMediaJson, setIsJsonLoaded } from "../store/mediaDataSlice";
+import { useState, useEffect } from "react";
+
 import { fetchAllMedia } from "../utils/supabase";
 import EmojiSpinner from "./base/EmojiSpinner";
 
-export default function RequireJsonLoader({ children }) {
-  const dispatch = useDispatch();
-  const isJsonLoaded = useSelector((state) => state.mediaData.isJsonLoaded);
+export default function MediaJsonFetcher({
+  setMediaJson = () => {},
+  children,
+}) {
+  const [isDataFetched, setIsDataFetched] = useState(false);
   const [progress, setProgress] = useState(0);
 
   // Moved loadMediaJson here, with progress
@@ -22,19 +23,18 @@ export default function RequireJsonLoader({ children }) {
   }
 
   useEffect(() => {
-    if (isJsonLoaded) return;
+    if (isDataFetched) return;
 
     loadMediaJsonWithProgress()
       .then((data) => {
-        dispatch(setMediaJson(data));
-        dispatch(setIsJsonLoaded(true));
+        setMediaJson(data);
+        setIsDataFetched(true);
       })
       .catch((err) => {
         console.error("Failed to fetch data from Supabase", err);
       });
-  }, [isJsonLoaded]);
+  }, [isDataFetched]);
 
-  if (!isJsonLoaded) return <EmojiSpinner progress={progress} />;
-
+  if (!isDataFetched) return <EmojiSpinner progress={progress} />;
   return children;
 }
