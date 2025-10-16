@@ -1,11 +1,9 @@
-import { useDispatch } from "react-redux";
-import { setSortMode } from "../store/mediaEditorSlice";
+import { useEffect } from "react";
 
 import SectionCard from "./base/SectionCard";
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
 import { fetchBaseKeys } from "../utils/supabase";
-import { useEffect } from "react";
 
 export default function MediaDropdown({
   mediaType = "",
@@ -13,8 +11,6 @@ export default function MediaDropdown({
   setBaseKeys = () => {},
   handleResetStates = () => {},
 }) {
-  const dispatch = useDispatch();
-
   const mediaOptions = [
     { label: "📸 Pictures", value: "pictures" },
     { label: "🎥 Videos", value: "videos" },
@@ -23,7 +19,6 @@ export default function MediaDropdown({
   const handleChange = ({ value }) => {
     setMediaType(value);
     handleResetStates();
-    dispatch(setSortMode("default"));
   };
 
   useEffect(() => {
