@@ -12,9 +12,9 @@ export default function RequireJsonLoader({ children }) {
   // Moved loadMediaJson here, with progress
   async function loadMediaJsonWithProgress() {
     setProgress(5);
-    const pictures = await fetchAllMedia("pictures");
+    const pictures = await fetchAllMedia({ mediaType: "pictures" });
     setProgress(50);
-    const videos = await fetchAllMedia("videos");
+    const videos = await fetchAllMedia({ mediaType: "videos" });
     setProgress(95);
     const media = { pictures, videos };
     setProgress(100);

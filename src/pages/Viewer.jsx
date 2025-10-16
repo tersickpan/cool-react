@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
 
 import MediaDropdown from "../components/MediaDropdown.jsx";
 import SortModeDropdown from "../components/SortModeDropdown.jsx";
@@ -11,8 +10,7 @@ import BaseVideoPreview from "../components/base/BaseVideoPreview.jsx";
 import BaseButton from "../components/base/BaseButton.jsx";
 
 export default function Viewer() {
-  const sortMode = useSelector((state) => state.mediaEditor.sortMode);
-
+  const [sortMode, setSortMode] = useState("default");
   const [mediaType, setMediaType] = useState("");
   const [baseKeys, setBaseKeys] = useState([]);
   const [entryKeys, setEntryKeys] = useState([]);
@@ -47,6 +45,7 @@ export default function Viewer() {
   };
 
   const handleResetStates = () => {
+    setSortMode("default");
     setEntryKeys([]);
     setCurrentBaddieArr([]);
     setSelectedBaseKey("");
@@ -69,7 +68,14 @@ export default function Viewer() {
       {mediaType && (
         <div className="grid md:grid-cols-2 gap-6">
           <SectionCard>
-            <SortModeDropdown />
+            <SortModeDropdown
+              sortMode={sortMode}
+              setSortMode={setSortMode}
+              handleResetStates={handleResetStates}
+              mediaType={mediaType}
+              setCurrentBaddieArr={setCurrentBaddieArr}
+              setEntryKeys={setEntryKeys}
+            />
             <BaseKeyDropdown
               mediaType={mediaType}
               baseKeys={baseKeys}
