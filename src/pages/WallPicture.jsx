@@ -1,12 +1,11 @@
-import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 
 import BaseImagePreview from "../components/base/BaseImagePreview";
 import shuffleArray from "../utils/shuffleArray";
+import MediaJsonFetcher from "../components/MediaJsonFetcher";
 
 function WallPicture() {
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
-
+  const [mediaJson, setMediaJson] = useState({ pictures: {}, videos: {} });
   const [picsArray, setPicsArray] = useState([]);
   const [picsIndex, setPicsIndex] = useState(0);
   const intervalRef = useRef(null);
@@ -51,7 +50,7 @@ function WallPicture() {
   }, [mediaJson]);
 
   return (
-    <>
+    <MediaJsonFetcher setMediaJson={setMediaJson}>
       {/* Extra small screens: only middle image */}
       <div className="sm:hidden w-full h-screen flex items-center justify-center bg-zinc-950">
         <BaseImagePreview
@@ -95,7 +94,7 @@ function WallPicture() {
           wallpaper
         />
       </div>
-    </>
+    </MediaJsonFetcher>
   );
 }
 

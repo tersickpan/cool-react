@@ -34,11 +34,11 @@ export async function insertSingleMediaUpload({
   return data;
 }
 
-export async function fetchAllMedia(mediaType) {
+export async function fetchAllMedia({ mediaType, ascending = false }) {
   const { data, error } = await supabase
     .from(mediaType)
     .select("*")
-    .order("timestamp", { ascending: false });
+    .order("timestamp", { ascending });
 
   if (error) {
     console.error("Error fetching media:", error);
@@ -60,7 +60,7 @@ export async function fetchBaseKeys(mediaType) {
 export async function fetchEntryKeys(mediaType, base_key) {
   const { data, error } = await supabase
     .from(mediaType)
-    .select("public_id")
+    .select("*")
     .eq("base_key", base_key)
     .order("public_id", { ascending: true });
 

@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedEntryKey } from "../store/mediaEditorSlice.js";
 
 import MediaDropdown from "../components/MediaDropdown.jsx";
 import SortModeDropdown from "../components/SortModeDropdown.jsx";
@@ -12,29 +10,24 @@ import BaseVideoPreview from "../components/base/BaseVideoPreview.jsx";
 import BaseButton from "../components/base/BaseButton.jsx";
 
 export default function Viewer() {
-  const dispatch = useDispatch();
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
-  const selectedBaseKey = useSelector(
-    (state) => state.mediaEditor.selectedBaseKey
-  );
-  const sortMode = useSelector((state) => state.mediaEditor.sortMode);
-  const entryKeys = useSelector((state) => state.mediaEditor.entryKeys);
-  const selectedEntryKey = useSelector(
-    (state) => state.mediaEditor.selectedEntryKey
-  );
-
+  const [sortMode, setSortMode] = useState("default");
+  const [mediaType, setMediaType] = useState("");
+  const [baseKeys, setBaseKeys] = useState([]);
+  const [entryKeys, setEntryKeys] = useState([]);
+  const [selectedBaseKey, setSelectedBaseKey] = useState("");
+  const [selectedEntryKey, setSelectedEntryKey] = useState("");
+  const [currentBaddieArr, setCurrentBaddieArr] = useState([]);
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
 
   const handleSelectedEntryKey = ({ value }) => {
     if (!value) return;
 
-    dispatch(setSelectedEntryKey(value));
-    const baddie = mediaJson[mediaType][value];
+    setSelectedEntryKey(value);
 
-    setCurrentUrl(baddie.url);
-    if (baddie.volume) setCurrentVolume(baddie.volume);
+    const entry = currentBaddieArr.find((e) => e.public_id === value);
+    setCurrentUrl(entry.url);
+    if (entry.volume) setCurrentVolume(entry.volume);
   };
 
   const handleNavButtonClick = (direction) => {
@@ -51,20 +44,52 @@ export default function Viewer() {
     handleSelectedEntryKey({ value: newEntryKey });
   };
 
+  const handleResetStates = () => {
+    setSortMode("default");
+    setEntryKeys([]);
+    setCurrentBaddieArr([]);
+    setSelectedBaseKey("");
+    setSelectedEntryKey("");
+    setCurrentUrl("");
+    setCurrentVolume(0);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6 space-y-6">
       <h1 className="text-3xl text-pink-400 font-bold">
         🎬 Viewer Mode Activated
       </h1>
-      <MediaDropdown />
+      <MediaDropdown
+        mediaType={mediaType}
+        setMediaType={setMediaType}
+        setBaseKeys={setBaseKeys}
+        handleResetStates={handleResetStates}
+      />
       {mediaType && (
         <div className="grid md:grid-cols-2 gap-6">
           <SectionCard>
-            <SortModeDropdown />
-            <BaseKeyDropdown disabled={sortMode !== "default"} />
+            <SortModeDropdown
+              sortMode={sortMode}
+              setSortMode={setSortMode}
+              handleResetStates={handleResetStates}
+              mediaType={mediaType}
+              setCurrentBaddieArr={setCurrentBaddieArr}
+              setEntryKeys={setEntryKeys}
+            />
+            <BaseKeyDropdown
+              mediaType={mediaType}
+              baseKeys={baseKeys}
+              selectedBaseKey={selectedBaseKey}
+              setSelectedBaseKey={setSelectedBaseKey}
+              setEntryKeys={setEntryKeys}
+              disabled={sortMode !== "default"}
+              setCurrentBaddieArr={setCurrentBaddieArr}
+            />
             <EntryKeyDropdown
               disabled={!selectedBaseKey & (sortMode === "default")}
               handleSelectedEntryKey={handleSelectedEntryKey}
+              entryKeys={entryKeys}
+              selectedEntryKey={selectedEntryKey}
             />
             <div className="grid md:grid-cols-2 p-10 gap-10">
               <BaseButton

@@ -1,21 +1,27 @@
-import { useSelector, useDispatch } from "react-redux";
-import {
-  setBaseKeys,
-  setEntryKeys,
-  setSelectedBaseKey,
-  setSelectedEntryKey,
-  setSortMode,
-} from "../store/mediaEditorSlice";
+import { useState } from "react";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseDropdown from "./base/BaseDropdown";
-import sortByTimestamp from "../utils/sortByTimestamp";
+import { fetchAllMedia } from "../utils/supabase";
 
-export default function SortModeDropdown() {
-  const dispatch = useDispatch();
-  const mediaType = useSelector((state) => state.mediaData.mediaType);
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
-  const sortMode = useSelector((state) => state.mediaEditor.sortMode);
+export default function SortModeDropdown({
+  sortMode = () => {},
+  setSortMode = () => {},
+  handleResetStates = () => {},
+  mediaType = "",
+  setCurrentBaddieArr = () => {},
+  setEntryKeys = () => {},
+}) {
+  const [allMediaData, setAllMediaData] = useState({
+    newest: {
+      pictures: [],
+      videos: [],
+    },
+    oldest: {
+      pictures: [],
+      videos: [],
+    },
+  });
 
   const sortOptions = [
     { value: "default", label: "Default" },
@@ -23,26 +29,35 @@ export default function SortModeDropdown() {
     { value: "oldest", label: "Oldest" },
   ];
 
-  const handleSortChange = ({ value }) => {
-    dispatch(setSortMode(value));
+  const handleSortChange = async ({ value }) => {
+    handleResetStates();
+    setSortMode(value);
 
-    if (value === "default") {
-      const keys = Object.keys(mediaJson[mediaType]);
-      const allKeysByBase = [...new Set(keys.map((k) => k.split("-")[0]))];
-      dispatch(setBaseKeys(allKeysByBase));
-      dispatch(setSelectedBaseKey(""));
-      dispatch(setSelectedEntryKey(""));
-      dispatch(setEntryKeys([]));
-      return;
+    if (value === "default") return;
+
+    if (allMediaData[value][mediaType].length === 0) {
+      console.log("Fetching: ", { mediaType, sortMode: value });
+
+      await fetchAllMedia({
+        mediaType,
+        ascending: value === "oldest",
+      }).then((res) => {
+        setAllMediaData((prev) => ({
+          ...prev,
+          [value]: {
+            ...prev[value],
+            [mediaType]: res,
+          },
+        }));
+        setCurrentBaddieArr(res);
+        setEntryKeys(res.map((item) => item.public_id));
+      });
+    } else {
+      setCurrentBaddieArr(allMediaData[value][mediaType]);
+      setEntryKeys(
+        allMediaData[value][mediaType].map((item) => item.public_id)
+      );
     }
-
-    const sortedMediaJson = sortByTimestamp(
-      mediaJson,
-      value === "newest" ? "desc" : "asc"
-    );
-    const options = Object.keys(sortedMediaJson[mediaType]);
-    dispatch(setEntryKeys(options));
-    dispatch(setSelectedEntryKey(""));
   };
 
   return (

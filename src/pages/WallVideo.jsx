@@ -1,37 +1,27 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import {
-  setCurrPicsArr,
-  setCurrVidsArr,
-  setPicIndex,
-  setVidIndex,
-  setLeftUrl,
-  setMiddleUrl,
-  setRightUrl,
-  setVideoVolume,
-} from "../store/wallpaperSlice";
+import { useEffect, useState } from "react";
 
+import MediaJsonFetcher from "../components/MediaJsonFetcher";
 import BaseImagePreview from "../components/base/BaseImagePreview";
 import BaseVideoPreview from "../components/base/BaseVideoPreview";
 import shuffleArray from "../utils/shuffleArray";
 
 function WallVideo() {
-  const dispatch = useDispatch();
-  const mediaJson = useSelector((state) => state.mediaData.mediaJson);
-  const currPicsArr = useSelector((state) => state.wallpaper.currPicsArr);
-  const currVidsArr = useSelector((state) => state.wallpaper.currVidsArr);
-  const picIndex = useSelector((state) => state.wallpaper.picIndex);
-  const vidIndex = useSelector((state) => state.wallpaper.vidIndex);
-  const leftUrl = useSelector((state) => state.wallpaper.leftUrl);
-  const middleUrl = useSelector((state) => state.wallpaper.middleUrl);
-  const rightUrl = useSelector((state) => state.wallpaper.rightUrl);
-  const videoVolume = useSelector((state) => state.wallpaper.videoVolume);
+  const [currPicsArr, setCurrPicsArr] = useState([]);
+  const [currVidsArr, setCurrVidsArr] = useState([]);
+  const [picIndex, setPicIndex] = useState(0);
+  const [vidIndex, setVidIndex] = useState(0);
+  const [leftUrl, setLeftUrl] = useState("");
+  const [middleUrl, setMiddleUrl] = useState("");
+  const [rightUrl, setRightUrl] = useState("");
+  const [videoVolume, setVideoVolume] = useState(0);
+
+  const [mediaJson, setMediaJson] = useState({ pictures: {}, videos: {} });
 
   const setMediaSource = () => {
-    dispatch(setLeftUrl(currPicsArr[picIndex]?.url || ""));
-    dispatch(setMiddleUrl(currVidsArr[vidIndex]?.url || ""));
-    dispatch(setRightUrl(currPicsArr[picIndex + 1]?.url || ""));
-    dispatch(setVideoVolume(currVidsArr[vidIndex]?.volume || 0.07));
+    setLeftUrl(currPicsArr[picIndex]?.url || "");
+    setMiddleUrl(currVidsArr[vidIndex]?.url || "");
+    setRightUrl(currPicsArr[picIndex + 1]?.url || "");
+    setVideoVolume(currVidsArr[vidIndex]?.volume || 0.07);
   };
 
   const handleOnEnded = () => {
@@ -39,20 +29,20 @@ function WallVideo() {
     if (nextPicIndex >= currPicsArr.length) {
       const arr = [...currPicsArr];
       shuffleArray(arr);
-      dispatch(setCurrPicsArr(arr));
-      dispatch(setPicIndex(0));
+      setCurrPicsArr(arr);
+      setPicIndex(0);
     } else {
-      dispatch(setPicIndex(nextPicIndex));
+      setPicIndex(nextPicIndex);
     }
 
     const nextVidIndex = vidIndex + 1;
     if (nextVidIndex >= currVidsArr.length) {
       const arr = [...currVidsArr];
       shuffleArray(arr);
-      dispatch(setCurrVidsArr(arr));
-      dispatch(setVidIndex(0));
+      setCurrVidsArr(arr);
+      setVidIndex(0);
     } else {
-      dispatch(setVidIndex(nextVidIndex));
+      setVidIndex(nextVidIndex);
     }
 
     setMediaSource();
@@ -63,10 +53,10 @@ function WallVideo() {
     const vids = Object.values(mediaJson.videos);
     shuffleArray(pics);
     shuffleArray(vids);
-    dispatch(setCurrPicsArr(pics));
-    dispatch(setCurrVidsArr(vids));
-    dispatch(setPicIndex(0));
-    dispatch(setVidIndex(0));
+    setCurrPicsArr(pics);
+    setCurrVidsArr(vids);
+    setPicIndex(0);
+    setVidIndex(0);
     setMediaSource();
   }, [mediaJson]);
 
@@ -75,7 +65,7 @@ function WallVideo() {
   }, [currPicsArr, currVidsArr, picIndex, vidIndex]);
 
   return (
-    <>
+    <MediaJsonFetcher setMediaJson={setMediaJson}>
       {/* Extra small screens: only video */}
       <div className="sm:hidden w-full h-screen flex items-center justify-center bg-zinc-950">
         <BaseVideoPreview
@@ -104,7 +94,7 @@ function WallVideo() {
           wallpaper
         />
       </div>
-    </>
+    </MediaJsonFetcher>
   );
 }
 
