@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import SocialLinks from "../components/base/SocialLinks.jsx";
 import MediaDropdown from "../components/MediaDropdown.jsx";
 import SortModeDropdown from "../components/SortModeDropdown.jsx";
 import BaseKeyDropdown from "../components/BaseKeyDropdown.jsx";
@@ -19,6 +20,7 @@ export default function Viewer() {
   const [currentBaddieArr, setCurrentBaddieArr] = useState([]);
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
+  const [currentSocials, setCurrentSocials] = useState({});
 
   const handleSelectedEntryKey = ({ value }) => {
     if (!value) return;
@@ -28,6 +30,7 @@ export default function Viewer() {
     const entry = currentBaddieArr.find((e) => e.public_id === value);
     setCurrentUrl(entry.url);
     if (entry.volume) setCurrentVolume(entry.volume);
+    if (entry.socials) setCurrentSocials(entry.socials);
   };
 
   const handleNavButtonClick = (direction) => {
@@ -111,6 +114,7 @@ export default function Viewer() {
             </div>
           </SectionCard>
           <SectionCard>
+            <SocialLinks socials={currentSocials} />
             {mediaType === "pictures" && <BaseImagePreview src={currentUrl} />}
             {mediaType === "videos" && (
               <BaseVideoPreview
