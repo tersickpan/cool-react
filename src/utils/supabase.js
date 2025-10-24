@@ -5,6 +5,23 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+async function fetchSocialSingle(public_id) {
+  const baseKey = public_id.split("-")[0];
+
+  const { data, error } = await supabase
+    .from("socials")
+    .select("tiktok, instagram")
+    .eq("base_key", baseKey)
+    .single();
+
+  if (error) {
+    console.warn("Error fetching social single:", error);
+    return { tiktok: "", instagram: "" };
+  }
+
+  return data;
+}
+
 // Function to insert media upload record
 export async function insertSingleMediaUpload({
   mediaType,
@@ -58,31 +75,47 @@ export async function fetchBaseKeys(mediaType) {
 }
 
 export async function fetchEntryKeys(mediaType, base_key) {
-  const { data, error } = await supabase
+  const mainQuery = supabase
     .from(mediaType)
     .select("*")
     .eq("base_key", base_key)
     .order("public_id", { ascending: true });
 
-  if (error) {
-    console.error("Error fetching entry keys:", error);
-    throw error;
+  const [mainRes, socialRes] = await Promise.all([
+    mainQuery,
+    fetchSocialSingle(base_key),
+  ]);
+
+  if (mainRes.error) {
+    console.error("Error fetching entry keys:", mainRes.error);
+    throw mainRes.error;
   }
-  return data;
+
+  mainRes.data.forEach((obj) => {
+    obj.socials = socialRes;
+  });
+
+  return mainRes.data;
 }
 
 export async function fetchSingleEntry(mediaType, public_id) {
-  const { data, error } = await supabase
+  const mainQuery = supabase
     .from(mediaType)
     .select("*")
     .eq("public_id", public_id)
     .single();
 
-  if (error) {
-    console.error("Error fetching single entry:", error);
-    throw error;
+  const [mainRes, socialRes] = await Promise.all([
+    mainQuery,
+    fetchSocialSingle(public_id),
+  ]);
+
+  if (mainRes.error) {
+    console.error("Error fetching single entry:", mainRes.error);
+    throw mainRes.error;
   }
-  return data;
+
+  return { ...mainRes.data, socials: socialRes };
 }
 
 export async function fetchSingleRandomEntry(mediaType, base_key) {
@@ -100,18 +133,24 @@ export async function fetchSingleRandomEntry(mediaType, base_key) {
   // Pick random offset
   const randomOffset = Math.floor(Math.random() * count);
 
-  const { data, error } = await supabase
+  const mainQuery = supabase
     .from(mediaType)
     .select("*")
     .eq("base_key", base_key)
     .range(randomOffset, randomOffset) // fetch 1 row at that offset
     .single();
 
-  if (error) {
-    console.error("Error fetching single random entry:", error);
-    throw error;
+  const [mainRes, socialRes] = await Promise.all([
+    mainQuery,
+    fetchSocialSingle(base_key),
+  ]);
+
+  if (mainRes.error) {
+    console.error("Error fetching single random entry:", mainRes.error);
+    throw mainRes.error;
   }
-  return data;
+
+  return { ...mainRes.data, socials: socialRes };
 }
 
 export async function fetchSingleEntryWithSort(mediaType, sortMode) {
@@ -137,6 +176,21 @@ export async function updateSingleEntryVolume(mediaType, public_id, newVolume) {
 
   if (error) {
     console.error("Error updating entry volume:", error);
+    throw error;
+  }
+  return data;
+}
+
+export async function updateSingleEntrySocial(public_id, newSocials) {
+  const baseKey = public_id.split("-")[0];
+
+  const { data, error } = await supabase
+    .from("socials")
+    .upsert({ base_key: baseKey, ...newSocials })
+    .eq("base_key", baseKey);
+
+  if (error) {
+    console.error("Error updating entry socials", error);
     throw error;
   }
   return data;
