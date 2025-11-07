@@ -3,7 +3,10 @@ import axios from "axios";
 
 import EmojiSpinner from "./base/EmojiSpinner";
 import getUploadSign from "../utils/getUploadSign";
-import { insertSingleMediaUpload } from "../utils/supabase";
+import {
+  insertSingleMediaUpload,
+  updateSingleEntrySocial,
+} from "../utils/supabase";
 
 const MultiMediaUploader = forwardRef(function MultiMediaUploader(
   {
@@ -28,7 +31,12 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
     setProgress({});
   };
 
-  const handleUpload = async ({ baseKey, lastEntryIndex }) => {
+  const handleUpload = async ({
+    baseKey,
+    lastEntryIndex,
+    socials,
+    isUpdateSocials,
+  }) => {
     if (!files.length) return;
 
     const resourceType = mediaType === "videos" ? "video" : "image";
@@ -93,6 +101,10 @@ const MultiMediaUploader = forwardRef(function MultiMediaUploader(
           timestamp: new Date(timestamp * 1000).toISOString(),
           volume: resourceType === "video" ? volume : undefined,
         });
+
+        if (idx === 0 && socials && isUpdateSocials) {
+          await updateSingleEntrySocial(public_id, socials);
+        }
 
         setProgress((prev) => ({
           ...prev,

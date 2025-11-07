@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import BaseLabel from "./base/BaseLabel";
 import BaseInput from "./base/BaseInput";
@@ -11,9 +11,10 @@ import isValidUrl from "../utils/isValidUrl";
 import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import BaseModal from "./base/BaseModal.jsx";
+import SocialEdits from "./base/SocialEdits.jsx";
 import {
-  fetchSingleEntry,
   updateSingleEntryVolume,
+  updateSingleEntrySocial,
 } from "../utils/supabase.js";
 import deleteSingleMedia from "../utils/deleteSingleMedia.js";
 
@@ -24,14 +25,23 @@ export default function EditExist() {
   const [entryKeys, setEntryKeys] = useState([]);
   const [selectedBaseKey, setSelectedBaseKey] = useState("");
   const [selectedEntryKey, setSelectedEntryKey] = useState("");
+  const [currentBaddieArr, setCurrentBaddieArr] = useState([]);
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentVolume, setCurrentVolume] = useState(0.07);
+  const [currentSocials, setCurrentSocials] = useState({});
 
   const handleSelectedEntryKey = ({ value }) => {
     setSelectedEntryKey(value);
+
+    if (!value) return;
+
+    const entry = currentBaddieArr.find((e) => e.public_id === value);
+    setCurrentUrl(entry.url);
+    setCurrentSocials(entry.socials);
+    if (entry.volume) setCurrentVolume(entry.volume);
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!selectedBaseKey || !selectedEntryKey || !currentUrl) {
       alert("Missing fields bruh");
       return;
@@ -42,14 +52,36 @@ export default function EditExist() {
       return;
     }
 
-    // Function: edit volume in Supabase
-    updateSingleEntryVolume(mediaType, selectedEntryKey, currentVolume)
-      .then(() => {
+    const tasks = [];
+    // always update socials
+    tasks.push(updateSingleEntrySocial(selectedEntryKey, currentSocials));
+
+    // only update volume for videos
+    if (mediaType === "videos") {
+      tasks.push(
+        updateSingleEntryVolume(
+          mediaType,
+          selectedEntryKey,
+          Number(currentVolume)
+        )
+      );
+    }
+
+    try {
+      const results = await Promise.allSettled(tasks);
+      const failures = results.filter((r) => r.status === "rejected");
+
+      if (failures.length === 0) {
         alert(`Edited ${selectedEntryKey} successfully!`);
-      })
-      .catch((err) => {
-        alert("Edit failed: " + err.message);
-      });
+      } else {
+        const msgs = failures
+          .map((f) => f.reason?.message || String(f.reason))
+          .join("; ");
+        alert(`Edit partially failed: ${msgs}`);
+      }
+    } catch (err) {
+      alert("Edit failed: " + err.message);
+    }
   };
 
   const handleDelete = () => {
@@ -69,23 +101,6 @@ export default function EditExist() {
     setCurrentUrl("");
     setCurrentVolume(0);
   };
-
-  useEffect(() => {
-    if (!selectedEntryKey) {
-      setCurrentUrl("");
-      setCurrentVolume(0);
-      return;
-    }
-
-    fetchSingleEntry(mediaType, selectedEntryKey)
-      .then((entry) => {
-        setCurrentUrl(entry.url);
-        if (entry.volume) setCurrentVolume(entry.volume);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch single entry from Supabase", err);
-      });
-  }, [selectedEntryKey]);
 
   return (
     <>
@@ -127,6 +142,7 @@ export default function EditExist() {
                 selectedBaseKey={selectedBaseKey}
                 setSelectedBaseKey={setSelectedBaseKey}
                 setEntryKeys={setEntryKeys}
+                setCurrentBaddieArr={setCurrentBaddieArr}
               />
               <EntryKeyDropdown
                 disabled={!selectedBaseKey}
@@ -147,6 +163,13 @@ export default function EditExist() {
                   />
                 </>
               )}
+              <>
+                <BaseLabel>Socials</BaseLabel>
+                <SocialEdits
+                  options={currentSocials}
+                  disabled={!selectedEntryKey}
+                />
+              </>
             </SectionCard>
             <SectionCard className="col-span-2">
               <div className="grid md:grid-cols-2 gap-6">

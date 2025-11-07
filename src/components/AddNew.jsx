@@ -10,6 +10,8 @@ import BaseImagePreview from "./base/BaseImagePreview";
 import BaseVideoPreview from "./base/BaseVideoPreview";
 import MultiMediaUploader from "./MultiMediaUploader.jsx";
 import BaseCarousel from "./base/BaseCarousel.jsx";
+import SocialLinks from "./base/SocialLinks.jsx";
+import SocialEdits from "./base/SocialEdits.jsx";
 
 export default function AddNew() {
   const uploaderRef = useRef(null);
@@ -18,34 +20,46 @@ export default function AddNew() {
   const [newBaddie, setNewBaddie] = useState("");
   const [previewFiles, setPreviewFiles] = useState([]);
   const [baseKeys, setBaseKeys] = useState([]);
-  const [entryKeys, setEntryKeys] = useState([]);
+  const [lastEntryIndex, setLastEntryIndex] = useState(0);
   const [selectedBaseKey, setSelectedBaseKey] = useState("");
   const [newVolume, setNewVolume] = useState(0.07);
+  const [newSocials, setNewSocials] = useState({ tiktok: "", instagram: "" });
+  const [isAddingNew, setIsAddingNew] = useState(false);
 
-  const handleNewBaddie = (value) => {
-    setNewBaddie(value);
-
-    if (value.trim() !== "" && selectedBaseKey !== "") {
+  const handleToggleNewBaddie = (value) => {
+    setIsAddingNew(value);
+    if (value) {
       setSelectedBaseKey("");
-      setEntryKeys([]);
+      setLastEntryIndex(0);
+      setCurrentBaddie(null);
+    } else {
+      setNewBaddie("");
     }
+    setNewSocials({ tiktok: "", instagram: "" });
   };
 
   const handleAdd = () => {
-    if (!newBaddie && !selectedBaseKey) {
-      alert("Missing fields bruh");
-      return;
-    }
-
     if (!previewFiles || previewFiles.length === 0) {
       alert("No files to upload");
       return;
     }
 
+    if (isAddingNew && !newBaddie) {
+      alert("No intro for da new hottie!!!");
+      return;
+    }
+
+    if (!isAddingNew && (!selectedBaseKey || lastEntryIndex === 0)) {
+      alert("Select which queen you adding to!!!");
+      return;
+    }
+
     if (uploaderRef.current) {
       uploaderRef.current.handleUpload({
-        baseKey: newBaddie ? newBaddie : selectedBaseKey,
-        lastEntryIndex: newBaddie ? 1 : entryKeys.length + 1,
+        baseKey: isAddingNew ? newBaddie : selectedBaseKey,
+        lastEntryIndex: isAddingNew ? 1 : lastEntryIndex + 1,
+        socials: newSocials,
+        isUpdateSocials: isAddingNew,
       });
     }
   };
@@ -53,7 +67,7 @@ export default function AddNew() {
   const handleResetStates = () => {
     setNewBaddie("");
     setPreviewFiles([]);
-    setEntryKeys([]);
+    setLastEntryIndex(0);
     setSelectedBaseKey("");
     setCurrentBaddie(null);
   };
@@ -76,6 +90,18 @@ export default function AddNew() {
                 files={previewFiles}
                 setFiles={setPreviewFiles}
               />
+              <BaseButton
+                toggled={isAddingNew}
+                onToggle={(value) => handleToggleNewBaddie(value)}
+              >
+                {isAddingNew ? "New Hottie Around" : "New Baddie???"}
+              </BaseButton>
+              {isAddingNew && (
+                <SocialEdits
+                  options={newSocials}
+                  disabled={!previewFiles}
+                />
+              )}
               {mediaType === "videos" && (
                 <>
                   <BaseLabel>Volume</BaseLabel>
@@ -92,11 +118,15 @@ export default function AddNew() {
             </SectionCard>
             {previewFiles && (
               <SectionCard className="col-span-1 gap-2">
-                <BaseLabel>New Baddie🤤</BaseLabel>
-                <BaseInput
-                  value={newBaddie}
-                  onChange={(e) => handleNewBaddie(e.target.value)}
-                />
+                {isAddingNew && (
+                  <>
+                    <BaseLabel>New Baddie🤤</BaseLabel>
+                    <BaseInput
+                      value={newBaddie}
+                      onChange={(e) => setNewBaddie(e.target.value)}
+                    />
+                  </>
+                )}
                 <BaseCarousel
                   files={previewFiles}
                   mediaType={mediaType}
@@ -105,28 +135,34 @@ export default function AddNew() {
               </SectionCard>
             )}
 
-            <SectionCard className="col-span-auto gap-2">
-              <BaseKeyDropdown
-                disabled={newBaddie}
-                setCurrentBaddieForPreview={true}
-                mediaType={mediaType}
-                baseKeys={baseKeys}
-                setBaseKeys={setBaseKeys}
-                selectedBaseKey={selectedBaseKey}
-                setSelectedBaseKey={setSelectedBaseKey}
-                setEntryKeys={setEntryKeys}
-                setCurrentBaddie={setCurrentBaddie}
-              />
-              {currentBaddie &&
-                (mediaType === "pictures" ? (
-                  <BaseImagePreview src={currentBaddie?.url} />
-                ) : (
-                  <BaseVideoPreview
-                    src={currentBaddie.url}
-                    volume={currentBaddie.volume}
-                  />
-                ))}
-            </SectionCard>
+            {!isAddingNew && (
+              <SectionCard className="col-span-auto gap-2">
+                <BaseKeyDropdown
+                  disabled={isAddingNew}
+                  setCurrentBaddieForPreview={true}
+                  mediaType={mediaType}
+                  baseKeys={baseKeys}
+                  setBaseKeys={setBaseKeys}
+                  selectedBaseKey={selectedBaseKey}
+                  setSelectedBaseKey={setSelectedBaseKey}
+                  setCurrentBaddie={setCurrentBaddie}
+                  setLastEntryIndex={setLastEntryIndex}
+                />
+                {currentBaddie && (
+                  <>
+                    <SocialLinks socials={currentBaddie.socials} />
+                    {mediaType === "pictures" ? (
+                      <BaseImagePreview src={currentBaddie?.url} />
+                    ) : (
+                      <BaseVideoPreview
+                        src={currentBaddie.url}
+                        volume={currentBaddie.volume}
+                      />
+                    )}
+                  </>
+                )}
+              </SectionCard>
+            )}
           </div>
           <BaseButton onClick={handleAdd}>Add wuhuu</BaseButton>
         </>
