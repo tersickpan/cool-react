@@ -65,7 +65,10 @@ export async function fetchAllMedia({ mediaType, ascending = false }) {
 }
 
 export async function fetchBaseKeys(mediaType) {
-  const { data, error } = await supabase.from(mediaType).select("base_key");
+  const { data, error } = await supabase
+    .from(mediaType)
+    .select("base_key")
+    .order("base_key", { ascending: true });
 
   if (error) {
     console.error("Error fetching base keys:", error);
@@ -150,7 +153,7 @@ export async function fetchSingleRandomEntry(mediaType, base_key) {
     throw mainRes.error;
   }
 
-  return { ...mainRes.data, socials: socialRes };
+  return { ...mainRes.data, socials: socialRes, lastEntryIndex: count };
 }
 
 export async function fetchSingleEntryWithSort(mediaType, sortMode) {

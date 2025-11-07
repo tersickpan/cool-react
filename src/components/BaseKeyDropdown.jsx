@@ -16,6 +16,7 @@ export default function BaseKeyDropdown({
   setCurrentVolume = () => {},
   setCurrentBaddie = () => {},
   setCurrentBaddieArr = () => {},
+  setLastEntryIndex = () => {},
 }) {
   const handleBaseKeyChange = ({ value }) => {
     setSelectedBaseKey(value);
@@ -33,6 +34,7 @@ export default function BaseKeyDropdown({
       fetchSingleRandomEntry(mediaType, selectedBaseKey)
         .then((entry) => {
           setCurrentBaddie(entry);
+          setLastEntryIndex(entry.lastEntryIndex);
         })
         .catch((err) => {
           console.error(
